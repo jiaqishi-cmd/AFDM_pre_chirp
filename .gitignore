@@ -1,0 +1,24 @@
+# MATLAB autosaves and temporary files
+*.asv
+*.m~
+*.mex*
+slprj/
+sccprj/
+codegen/
+
+# Simulation outputs
+results/
+*.fig
+*.mat
+*.log
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Python leftovers, if tools create them accidentally
+__pycache__/
+*.py[cod]
+.pytest_cache/
