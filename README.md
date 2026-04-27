@@ -28,4 +28,11 @@ cd matlab_afdm
 simulation_loop
 ```
 
+For a baseline/GPS/proposed comparison:
+
+```matlab
+cd matlab_afdm
+run_scheme_comparison
+```
+
 Simulation mode and channel parameters are controlled in `matlab_afdm/afdm_config.m`.
