@@ -1,6 +1,6 @@
-function results = run_adaptive_ber_comparison(snr_values, targetErrors, maxFrames, schemes)
+function results = run_adaptive_ber_comparison(snr_values, targetErrors, maxFrames, schemes, options)
 %RUN_ADAPTIVE_BER_COMPARISON Run BER curves with target-error stopping.
-%   results = run_adaptive_ber_comparison(snr_values, targetErrors, maxFrames, schemes)
+%   results = run_adaptive_ber_comparison(snr_values, targetErrors, maxFrames, schemes, options)
 %
 %   Each SNR/scheme point stops when either targetErrors bit errors are
 %   collected or maxFrames frames are simulated. This spends little time at
@@ -22,13 +22,16 @@ function results = run_adaptive_ber_comparison(snr_values, targetErrors, maxFram
     if nargin < 4 || isempty(schemes)
         schemes = {'baseline', 'paper_grouping', 'proposed_grouping'};
     end
+    if nargin < 5
+        options = struct();
+    end
 
     targetErrors = expand_point_parameter(targetErrors, snr_values, 'targetErrors');
     maxFrames = expand_point_parameter(maxFrames, snr_values, 'maxFrames');
 
     scheme_labels = scheme_display_labels(schemes);
     num_schemes = numel(schemes);
-    base_config = afdm_config();
+    base_config = configure_experiment(afdm_config(), options);
     base_seed = base_config.simulation.random_seed;
 
     results.schemes = schemes;
@@ -112,6 +115,22 @@ function results = run_adaptive_ber_comparison(snr_values, targetErrors, maxFram
     matPath = fullfile(outputDir, ['adaptive_ber_comparison_' timestamp '.mat']);
     save(matPath, 'results');
     fprintf('\nSaved results to %s\n', matPath);
+end
+
+function config = configure_experiment(config, options)
+    if isfield(options, 'M_mod')
+        config.modulation.M_mod = options.M_mod;
+    end
+    if isfield(options, 'modType')
+        config.modulation.modType = options.modType;
+    end
+    if isfield(options, 'channel_profile')
+        config = generate_channel_profile(config, options.channel_profile);
+        config.waveform.c1 = ...
+            (2 * (floor(max(abs(config.channel.doppler_taps))) + 1) + 1) ...
+            / (2 * config.waveform.NumSubcarriers);
+    end
+    config = apply_pre_chirp_scheme(config, config.pre_chirp.scheme);
 end
 
 function values = default_target_errors(snr_values)

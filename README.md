@@ -57,3 +57,15 @@ run_adaptive_ber_comparison
 ```
 
 Simulation mode and channel parameters are controlled in `matlab_afdm/afdm_config.m`.
+
+Available channel profiles include the lightweight `random_3path` demo channel and `bemani_21path`, which follows the 21-path LTV setup used in Bemani et al. Fig. 5.
+
+Example Bemani-style BER run:
+
+```matlab
+opts.channel_profile = 'bemani_21path';
+opts.M_mod = 4;
+opts.modType = 'qam';
+run_adaptive_ber_comparison([15 20 25], [200 100 20], [5000 20000 50000], ...
+    {'baseline'}, opts)
+```

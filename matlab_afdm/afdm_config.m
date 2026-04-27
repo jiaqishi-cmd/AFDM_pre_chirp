@@ -13,21 +13,18 @@ function config = afdm_config()
     config.channel.snr_db = 30;
     config.channel.add_noise = true;
     config.channel.multipath = true;
+    config.channel.profile = 'random_3path';
+    config.channel.num_taps = 3;
+    config.channel.max_delay = 3;
+    config.channel.max_doppler = 2.5;
+    config.channel.max_integer_delay = 2;
+    config.channel.max_integer_doppler = 3;
 
-    taps = 3;
-    max_delay = 3;
-    k_max = 2.5;
-    config.channel.delay_taps = randi([0, max_delay], 1, taps);
-
-    doppler_taps = (2 * rand(1, taps) - 1) * k_max;
-    config.channel.doppler_freq = doppler_taps / config.waveform.NumSubcarriers;
-
-    config.channel.chan_coef = (randn(1, taps) + 1i * randn(1, taps)) / sqrt(2);
-    config.channel.chan_coef = config.channel.chan_coef / norm(config.channel.chan_coef);
+    config = generate_channel_profile(config, config.channel.profile);
 
     k_v = 1;
     config.waveform.c1 = ...
-        (2 * (floor(max(abs(doppler_taps))) + k_v) + 1) ...
+        (2 * (floor(max(abs(config.channel.doppler_taps))) + k_v) + 1) ...
         / (2 * config.waveform.NumSubcarriers);
 
     base_c2 = sqrt(2) / (10 * config.waveform.NumSubcarriers);
