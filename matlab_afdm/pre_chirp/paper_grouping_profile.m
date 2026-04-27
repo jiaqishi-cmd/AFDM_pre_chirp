@@ -1,17 +1,16 @@
 function profile = paper_grouping_profile(numSubcarriers, params)
-%PAPER_GROUPING_PROFILE Placeholder for the IEEE paper grouping method.
-%   Replace this deterministic grouped profile with the paper formula.
+%PAPER_GROUPING_PROFILE Build GPS candidate set and contiguous groups.
+%   The final c2 vector is selected per frame by greedy_gps_profile.
 
-    base_c2 = get_param(params, 'base_c2', sqrt(2) / (10 * numSubcarriers));
     num_groups = get_param(params, 'num_groups', 4);
-    group_spacing = get_param(params, 'group_spacing', base_c2 / 4);
+    num_candidates = get_param(params, 'num_candidates', 2);
 
-    group_index = round_robin_groups(numSubcarriers, num_groups);
-    offsets = centered_group_offsets(num_groups, group_spacing);
-    c2 = base_c2 + offsets(group_index);
+    candidate_set = gps_candidate_set(numSubcarriers, num_candidates);
+    group_index = contiguous_groups(numSubcarriers, num_groups);
 
     profile.scheme = 'paper_grouping';
-    profile.c2 = c2(:);
+    profile.c2 = candidate_set(:, 1);
     profile.group_index = group_index(:);
-    profile.description = 'Placeholder grouped pre-chirp profile for paper reproduction.';
+    profile.candidate_set = candidate_set;
+    profile.description = 'GPS candidate set and contiguous groups for paper reproduction.';
 end

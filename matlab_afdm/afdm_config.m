@@ -34,6 +34,7 @@ function config = afdm_config()
     config.pre_chirp.scheme = 'baseline';
     config.pre_chirp.base_c2 = base_c2;
     config.pre_chirp.num_groups = 4;
+    config.pre_chirp.num_candidates = 2;
     config.pre_chirp.group_spacing = base_c2 / 4;
     config = apply_pre_chirp_scheme(config, config.pre_chirp.scheme);
 

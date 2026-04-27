@@ -10,7 +10,7 @@ This workspace contains a MATLAB implementation of an AFDM transmit-channel-rece
 - `matlab_afdm/transmitter/`: random bit generation, QAM/PSK modulation, IDAFT modulation, CPP insertion, and PAPR calculation.
 - `matlab_afdm/channel/`: multipath Doppler channel and AWGN.
 - `matlab_afdm/receive/`: CPP removal, DAFT demodulation, effective-channel estimation, MMSE equalization, symbol decision, and BER counting.
-- `matlab_afdm/pre_chirp/`: configurable pre-chirp assignment profiles for baseline, paper reproduction, and proposed grouping studies.
+- `matlab_afdm/pre_chirp/`: configurable pre-chirp assignment profiles for baseline, GPS paper reproduction, and proposed grouping studies. The GPS paper profile performs frame-level greedy PAPR minimization after modulation symbols are generated.
 
 ## Run
 
