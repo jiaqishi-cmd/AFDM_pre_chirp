@@ -35,4 +35,11 @@ cd matlab_afdm
 run_scheme_comparison
 ```
 
+For proposed perturbation strength sweeps:
+
+```matlab
+cd matlab_afdm
+run_delta_sweep
+```
+
 Simulation mode and channel parameters are controlled in `matlab_afdm/afdm_config.m`.
