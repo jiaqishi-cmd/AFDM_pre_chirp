@@ -42,4 +42,18 @@ cd matlab_afdm
 run_delta_sweep
 ```
 
+For higher-sample BER-only comparisons:
+
+```matlab
+cd matlab_afdm
+run_ber_comparison
+```
+
+For adaptive BER runs with target-error stopping:
+
+```matlab
+cd matlab_afdm
+run_adaptive_ber_comparison
+```
+
 Simulation mode and channel parameters are controlled in `matlab_afdm/afdm_config.m`.
