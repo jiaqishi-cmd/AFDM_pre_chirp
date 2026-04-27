@@ -36,6 +36,7 @@ function config = afdm_config()
     config.pre_chirp.num_groups = 4;
     config.pre_chirp.num_candidates = 2;
     config.pre_chirp.group_spacing = base_c2 / 4;
+    config.pre_chirp.delta = base_c2 / 16;
     config = apply_pre_chirp_scheme(config, config.pre_chirp.scheme);
 
     config.simulation.enable_snr_loop = true;
