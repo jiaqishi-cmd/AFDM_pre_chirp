@@ -33,6 +33,7 @@ function results = run_adaptive_ber_comparison(snr_values, targetErrors, maxFram
     num_schemes = numel(schemes);
     base_config = configure_experiment(afdm_config(), options);
     base_seed = base_config.simulation.random_seed;
+    frame_options.refresh_channel = base_config.simulation.refresh_channel_per_frame;
 
     results.schemes = schemes;
     results.scheme_labels = scheme_labels;
@@ -65,15 +66,9 @@ function results = run_adaptive_ber_comparison(snr_values, targetErrors, maxFram
 
             while total_err_bits < targetErrors(snr_idx) && frame_idx < maxFrames(snr_idx)
                 frame_idx = frame_idx + 1;
-                rng(base_seed + 1000000 * snr_idx + 1000 * scheme_idx + frame_idx, 'twister');
-
-                [signal_cpp, ~, tx_bits, tx_state] = afdm_tx_engine(cfg);
-                r_signal = multipath_channel(signal_cpp, cfg);
-                r_signal = add_awgn(r_signal, cfg);
-                [~, err_bits, num_bits] = afdm_rx_engine(r_signal, cfg, tx_bits, tx_state);
-
-                total_err_bits = total_err_bits + err_bits;
-                total_bits = total_bits + num_bits;
+                frame = simulate_frame(cfg, base_seed + 1000000 * snr_idx + frame_idx, frame_options);
+                total_err_bits = total_err_bits + frame.err_bits;
+                total_bits = total_bits + frame.total_bits;
 
                 if mod(frame_idx, 1000) == 0
                     fprintf('%-9s | SNR = %5.1f dB | frame %7d | errors = %7d | BER = %.3e\n', ...
@@ -117,22 +112,6 @@ function results = run_adaptive_ber_comparison(snr_values, targetErrors, maxFram
     fprintf('\nSaved results to %s\n', matPath);
 end
 
-function config = configure_experiment(config, options)
-    if isfield(options, 'M_mod')
-        config.modulation.M_mod = options.M_mod;
-    end
-    if isfield(options, 'modType')
-        config.modulation.modType = options.modType;
-    end
-    if isfield(options, 'channel_profile')
-        config = generate_channel_profile(config, options.channel_profile);
-        config.waveform.c1 = ...
-            (2 * (floor(max(abs(config.channel.doppler_taps))) + 1) + 1) ...
-            / (2 * config.waveform.NumSubcarriers);
-    end
-    config = apply_pre_chirp_scheme(config, config.pre_chirp.scheme);
-end
-
 function values = default_target_errors(snr_values)
     values = zeros(size(snr_values));
 
@@ -173,21 +152,4 @@ function values = expand_point_parameter(values, snr_values, name)
     end
 
     values = reshape(values, size(snr_values));
-end
-
-function labels = scheme_display_labels(schemes)
-    labels = schemes;
-
-    for idx = 1:numel(schemes)
-        switch lower(schemes{idx})
-            case 'baseline'
-                labels{idx} = 'Baseline';
-            case 'paper_grouping'
-                labels{idx} = 'GPS';
-            case 'proposed_grouping'
-                labels{idx} = 'Proposed';
-            otherwise
-                labels{idx} = schemes{idx};
-        end
-    end
 end

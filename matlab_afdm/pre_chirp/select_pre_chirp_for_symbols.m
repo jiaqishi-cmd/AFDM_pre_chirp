@@ -7,9 +7,9 @@ function profile = select_pre_chirp_for_symbols(symbols, config)
         case 'baseline'
             profile = config.pre_chirp.profile;
         case 'paper_grouping'
-            profile = greedy_gps_profile(symbols, config);
+            profile = select_greedy_profile(symbols, config, scheme);
         case 'proposed_grouping'
-            profile = greedy_proposed_profile(symbols, config);
+            profile = select_greedy_profile(symbols, config, scheme);
         otherwise
             error('Unsupported pre-chirp scheme: %s', scheme);
     end

@@ -6,6 +6,7 @@ addpath(rootDir);
 setup_paths(rootDir);
 
 config = afdm_config();
+frame_options.refresh_channel = config.simulation.refresh_channel_per_frame;
 
 if config.simulation.enable_snr_loop
     snr_values = config.simulation.snr_range;
@@ -27,16 +28,10 @@ if config.simulation.enable_snr_loop
         total_papr = 0;
 
         for trial = 1:num_trials
-            [signal_cpp, papr, tx_bits, tx_state] = afdm_tx_engine(config);
-            total_papr = total_papr + papr;
-
-            r_signal = multipath_channel(signal_cpp, config);
-            r_signal = add_awgn(r_signal, config);
-
-            [~, err_bits, num_bits] = afdm_rx_engine(r_signal, config, tx_bits, tx_state);
-
-            total_err_bits = total_err_bits + err_bits;
-            total_bits = total_bits + num_bits;
+            frame = simulate_frame(config, config.simulation.random_seed + 100000 * snr_idx + trial, frame_options);
+            total_papr = total_papr + frame.papr;
+            total_err_bits = total_err_bits + frame.err_bits;
+            total_bits = total_bits + frame.total_bits;
         end
 
         ber_results(snr_idx) = total_err_bits / total_bits;
@@ -76,16 +71,10 @@ elseif config.simulation.enable_montecarlo
     total_papr = 0;
 
     for trial = 1:num_trials
-        [signal_cpp, papr, tx_bits, tx_state] = afdm_tx_engine(config);
-        total_papr = total_papr + papr;
-
-        r_signal = multipath_channel(signal_cpp, config);
-        r_signal = add_awgn(r_signal, config);
-
-        [~, err_bits, num_bits] = afdm_rx_engine(r_signal, config, tx_bits, tx_state);
-
-        total_err_bits = total_err_bits + err_bits;
-        total_bits = total_bits + num_bits;
+        frame = simulate_frame(config, config.simulation.random_seed + trial, frame_options);
+        total_papr = total_papr + frame.papr;
+        total_err_bits = total_err_bits + frame.err_bits;
+        total_bits = total_bits + frame.total_bits;
 
         if mod(trial, 10) == 0 || trial == 1
             fprintf('Trial %4d/%d complete\n', trial, num_trials);
@@ -105,17 +94,10 @@ elseif config.simulation.enable_montecarlo
 else
     fprintf('========== Single-run simulation ==========\n');
 
-    [signal_cpp, papr, tx_bits, tx_state] = afdm_tx_engine(config);
-    fprintf('Transmit signal PAPR: %.2f dB\n', papr);
-
-    r_signal = multipath_channel(signal_cpp, config);
-    r_signal = add_awgn(r_signal, config);
-
-    [~, err_bits, total_bits] = afdm_rx_engine(r_signal, config, tx_bits, tx_state);
-
-    ber = err_bits / total_bits;
-    fprintf('Total bits: %d\n', total_bits);
-    fprintf('Error bits: %d\n', err_bits);
-    fprintf('BER: %.2e\n', ber);
+    frame = simulate_frame(config, config.simulation.random_seed, frame_options);
+    fprintf('Transmit signal PAPR: %.2f dB\n', frame.papr);
+    fprintf('Total bits: %d\n', frame.total_bits);
+    fprintf('Error bits: %d\n', frame.err_bits);
+    fprintf('BER: %.2e\n', frame.ber);
     fprintf('========== Simulation complete ==========\n');
 end

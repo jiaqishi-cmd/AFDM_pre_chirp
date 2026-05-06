@@ -12,4 +12,6 @@ function setup_paths(rootDir)
     addpath(fullfile(rootDir, 'channel'));
     addpath(fullfile(rootDir, 'receive'));
     addpath(fullfile(rootDir, 'pre_chirp'));
+    addpath(fullfile(rootDir, 'pre_chirp', 'profiles'));
+    addpath(fullfile(rootDir, 'pre_chirp', 'utilities'));
 end

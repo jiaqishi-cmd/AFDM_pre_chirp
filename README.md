@@ -10,7 +10,7 @@ This workspace contains a MATLAB implementation of an AFDM transmit-channel-rece
 - `matlab_afdm/transmitter/`: random bit generation, QAM/PSK modulation, IDAFT modulation, CPP insertion, and PAPR calculation.
 - `matlab_afdm/channel/`: multipath Doppler channel and AWGN.
 - `matlab_afdm/receive/`: CPP removal, DAFT demodulation, effective-channel estimation, MMSE equalization, symbol decision, and BER counting.
-- `matlab_afdm/pre_chirp/`: configurable pre-chirp assignment profiles for baseline, GPS paper reproduction, and proposed grouping studies. GPS uses the paper-style candidate set, while the proposed profile keeps the original AFDM `c2` and greedily applies small group-wise perturbations from `{0, -delta, +delta}`.
+- `matlab_afdm/pre_chirp/`: pre-chirp profile construction and frame-level selection. Top-level files provide the config/selection entry points, `profiles/` defines baseline, GPS, and proposed schemes, and `utilities/` contains shared candidate-set and grouping helpers. GPS uses the paper-style candidate set, while the proposed profile keeps the original AFDM `c2` and greedily applies small group-wise perturbations from `{0, -delta, +delta}`.
 
 ## Run
 
@@ -57,6 +57,11 @@ run_adaptive_ber_comparison
 ```
 
 Simulation mode and channel parameters are controlled in `matlab_afdm/afdm_config.m`.
+By default, BER comparisons reuse the configured channel realization and pair
+schemes with the same per-frame random seed. Set
+`config.simulation.refresh_channel_per_frame = true` or pass
+`options.refresh_channel_per_frame = true` to BER comparison helpers when you
+want each simulated frame to draw a fresh channel profile.
 
 Available channel profiles include the lightweight `random_3path` demo channel and `bemani_21path`, which follows the 21-path LTV setup used in Bemani et al. Fig. 5.
 

@@ -2,7 +2,7 @@ function config = afdm_config()
 %AFDM_CONFIG Build the default AFDM simulation configuration.
 
     config.simulation.random_seed = 20260427;
-    rng(config.simulation.random_seed, 'twister');
+    config.simulation.refresh_channel_per_frame = false;
 
     config.waveform.NumSubcarriers = 64;
     config.waveform.CPPLength = 3;
@@ -20,7 +20,10 @@ function config = afdm_config()
     config.channel.max_integer_delay = 2;
     config.channel.max_integer_doppler = 3;
 
+    oldRngState = rng;
+    rng(config.simulation.random_seed, 'twister');
     config = generate_channel_profile(config, config.channel.profile);
+    rng(oldRngState);
 
     k_v = 1;
     config.waveform.c1 = ...

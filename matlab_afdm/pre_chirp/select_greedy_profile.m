@@ -1,10 +1,10 @@
-function profile = greedy_proposed_profile(symbols, config)
-%GREEDY_PROPOSED_PROFILE Select small perturbations by greedy PAPR search.
+function profile = select_greedy_profile(symbols, config, scheme)
+%SELECT_GREEDY_PROFILE Apply grouped greedy PAPR selection for a scheme.
 
     N = config.waveform.NumSubcarriers;
     c1 = config.waveform.c1;
 
-    base_profile = proposed_grouping_profile(N, config.pre_chirp);
+    base_profile = build_pre_chirp_profile(scheme, N, config.pre_chirp);
     selection = greedy_group_papr_selection( ...
         symbols, ...
         N, ...
@@ -14,8 +14,11 @@ function profile = greedy_proposed_profile(symbols, config)
 
     profile = base_profile;
     profile.c2 = selection.c2(:);
+    profile.selection.selected_candidate_index = selection.selected_candidate_index;
+    profile.selection.papr = selection.papr;
+    profile.selection.signal = selection.signal;
     profile.selected_candidate_index = selection.selected_candidate_index;
     profile.papr_after_selection = selection.papr;
     profile.selected_signal = selection.signal;
-    profile.description = 'Frame-level small-perturbation greedy pre-chirp profile.';
+    profile.description = sprintf('Frame-level %s greedy pre-chirp profile.', scheme);
 end

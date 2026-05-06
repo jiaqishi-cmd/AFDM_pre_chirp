@@ -22,6 +22,7 @@ function results = run_delta_sweep(deltaRatios, numPaprFrames, numBerFrames, snr
     base_config = afdm_config();
     base_seed = base_config.simulation.random_seed;
     base_c2 = base_config.pre_chirp.base_c2;
+    frame_options.refresh_channel = base_config.simulation.refresh_channel_per_frame;
 
     labels = build_delta_labels(deltaRatios);
     num_delta = numel(deltaRatios);
@@ -40,9 +41,8 @@ function results = run_delta_sweep(deltaRatios, numPaprFrames, numBerFrames, snr
     for frame_idx = 1:numPaprFrames
         for delta_idx = 1:num_delta
             cfg = proposed_config(base_config, results.delta_values(delta_idx));
-            rng(base_seed + frame_idx, 'twister');
-            [~, papr] = afdm_tx_engine(cfg);
-            results.papr_samples(frame_idx, delta_idx) = papr;
+            frame = simulate_frame(cfg, base_seed + frame_idx, frame_options);
+            results.papr_samples(frame_idx, delta_idx) = frame.papr;
         end
 
         if mod(frame_idx, 50) == 0 || frame_idx == numPaprFrames
@@ -58,7 +58,7 @@ function results = run_delta_sweep(deltaRatios, numPaprFrames, numBerFrames, snr
             cfg = proposed_config(base_config, results.delta_values(delta_idx));
             cfg.channel.snr_db = snr_db;
 
-            [ber_value, ~, ~] = run_ber_frames(cfg, base_seed, snr_idx, numBerFrames);
+            [ber_value, ~, ~] = run_ber_frames(cfg, base_seed, snr_idx, numBerFrames, frame_options);
             results.ber(snr_idx, delta_idx) = ber_value;
 
             fprintf('%-12s | SNR = %5.1f dB | BER = %.2e\n', ...
@@ -100,14 +100,14 @@ function reference = run_reference_schemes(base_config, base_seed, numPaprFrames
     reference.labels = labels;
     reference.papr_samples = zeros(numPaprFrames, num_schemes);
     reference.ber = zeros(numel(snr_values), num_schemes);
+    frame_options.refresh_channel = base_config.simulation.refresh_channel_per_frame;
 
     fprintf('========== Reference PAPR sampling ==========\n');
     for frame_idx = 1:numPaprFrames
         for scheme_idx = 1:num_schemes
             cfg = apply_pre_chirp_scheme(base_config, schemes{scheme_idx});
-            rng(base_seed + frame_idx, 'twister');
-            [~, papr] = afdm_tx_engine(cfg);
-            reference.papr_samples(frame_idx, scheme_idx) = papr;
+            frame = simulate_frame(cfg, base_seed + frame_idx, frame_options);
+            reference.papr_samples(frame_idx, scheme_idx) = frame.papr;
         end
     end
 
@@ -119,7 +119,7 @@ function reference = run_reference_schemes(base_config, base_seed, numPaprFrames
             cfg = apply_pre_chirp_scheme(base_config, schemes{scheme_idx});
             cfg.channel.snr_db = snr_db;
 
-            [ber_value, ~, ~] = run_ber_frames(cfg, base_seed, snr_idx, numBerFrames);
+            [ber_value, ~, ~] = run_ber_frames(cfg, base_seed, snr_idx, numBerFrames, frame_options);
             reference.ber(snr_idx, scheme_idx) = ber_value;
 
             fprintf('%-9s | SNR = %5.1f dB | BER = %.2e\n', ...
@@ -128,19 +128,14 @@ function reference = run_reference_schemes(base_config, base_seed, numPaprFrames
     end
 end
 
-function [ber_value, total_err_bits, total_bits] = run_ber_frames(cfg, base_seed, snr_idx, numFrames)
+function [ber_value, total_err_bits, total_bits] = run_ber_frames(cfg, base_seed, snr_idx, numFrames, frame_options)
     total_err_bits = 0;
     total_bits = 0;
 
     for frame_idx = 1:numFrames
-        rng(base_seed + 100000 * snr_idx + frame_idx, 'twister');
-        [signal_cpp, ~, tx_bits, tx_state] = afdm_tx_engine(cfg);
-        r_signal = multipath_channel(signal_cpp, cfg);
-        r_signal = add_awgn(r_signal, cfg);
-        [~, err_bits, num_bits] = afdm_rx_engine(r_signal, cfg, tx_bits, tx_state);
-
-        total_err_bits = total_err_bits + err_bits;
-        total_bits = total_bits + num_bits;
+        frame = simulate_frame(cfg, base_seed + 100000 * snr_idx + frame_idx, frame_options);
+        total_err_bits = total_err_bits + frame.err_bits;
+        total_bits = total_bits + frame.total_bits;
     end
 
     ber_value = total_err_bits / total_bits;

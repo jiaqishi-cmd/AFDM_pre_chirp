@@ -14,7 +14,7 @@ function x_dec = symbol_decision(x_est, M_mod, modType)
         case 'qam'
             x_dec = qamdemod(x_est, M_mod, 'OutputType', 'bit', 'UnitAveragePower', true);
         case 'psk'
-            x_dec = pskdemod(x_est, M_mod, 'OutputType', 'bit', 'PhaseOffset', pi/M_mod);
+            x_dec = pskdemod(x_est, M_mod, pi/M_mod, 'OutputType', 'bit');
         otherwise
             error('不支持的调制类型: %s. 仅支持 ''qam'' 或 ''psk''.', modType);
     end

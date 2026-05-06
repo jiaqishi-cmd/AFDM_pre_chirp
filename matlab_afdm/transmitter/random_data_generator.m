@@ -26,7 +26,7 @@ function [symbols, bits] = random_data_generator(numSymbols, M_mod, modType)
         case 'qam'
             symbols = qammod(bits, M_mod, 'InputType', 'bit', 'UnitAveragePower', true);
         case 'psk'
-            symbols = pskmod(bits, M_mod, 'InputType', 'bit');
+            symbols = pskmod(bits, M_mod, pi/M_mod, 'InputType', 'bit');
         otherwise
             error('Unsupported modulation type: %s', modType);
     end
