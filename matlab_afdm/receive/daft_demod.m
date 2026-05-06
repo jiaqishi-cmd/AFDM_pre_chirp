@@ -15,11 +15,11 @@ function symbols = daft_demod(signal, numSubcarriers, c1, c2)
         c1 = 0;
     end
 
+    validateattributes(numSubcarriers, {'numeric'}, {'scalar', 'integer', 'positive'});
     N = numSubcarriers;
-    if numel(signal) < N
-        signal = [signal(:); zeros(N - numel(signal), 1)];
-    else
-        signal = signal(:);
+    signal = signal(:);
+    if numel(signal) ~= N
+        error('signal length must equal numSubcarriers.');
     end
 
     if isscalar(c2)

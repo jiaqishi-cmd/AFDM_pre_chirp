@@ -24,7 +24,8 @@ function frame = simulate_frame(config, frameSeed, options)
 
     [signal_cpp, papr, tx_bits, tx_state] = afdm_tx_engine(config);
     r_signal = multipath_channel(signal_cpp, config);
-    r_signal = add_awgn(r_signal, config);
+    [r_signal, noise_var] = add_awgn(r_signal, config);
+    config.channel.noise_var = noise_var;
     [x_dec, err_bits, total_bits] = afdm_rx_engine(r_signal, config, tx_bits, tx_state);
 
     frame.papr = papr;
@@ -34,6 +35,7 @@ function frame = simulate_frame(config, frameSeed, options)
     frame.x_dec = x_dec;
     frame.tx_bits = tx_bits;
     frame.tx_state = tx_state;
+    frame.noise_var = noise_var;
     frame.config = config;
 
     if ~isempty(oldRngState)

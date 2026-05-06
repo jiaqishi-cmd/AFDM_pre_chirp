@@ -1,4 +1,4 @@
-function y = add_awgn(signal, config)
+function [y, noise_var] = add_awgn(signal, config)
 %ADD_AWGN 添加高斯白噪声。
 %   y = add_awgn(signal, config)
 %   signal: 输入信号。
@@ -18,12 +18,14 @@ function y = add_awgn(signal, config)
     if ~config.channel.add_noise
         % 不加噪，直接返回原信号
         y = signal;
+        noise_var = 0;
         return;
     end
     
     power = mean(abs(signal).^2);
     snr = 10^(snr_db / 10);
     noise_power = power / snr;
+    noise_var = noise_power;
     
     noise = sqrt(noise_power / 2) * (randn(size(signal)) + 1i * randn(size(signal)));
     y = signal + noise;

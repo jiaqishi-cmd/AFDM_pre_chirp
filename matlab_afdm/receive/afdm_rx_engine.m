@@ -32,7 +32,9 @@ function [x_dec, err_bits, total_bits] = afdm_rx_engine(r_signal, config, x_ref,
         error('config.channel.snr_db must be defined.');
     end
 
-    if isfield(config.channel, 'add_noise') && ~config.channel.add_noise
+    if isfield(config.channel, 'noise_var') && ~isempty(config.channel.noise_var)
+        noise_var = config.channel.noise_var;
+    elseif isfield(config.channel, 'add_noise') && ~config.channel.add_noise
         noise_var = 0;
     else
         noise_var = 1 / (10^(config.channel.snr_db / 10));
