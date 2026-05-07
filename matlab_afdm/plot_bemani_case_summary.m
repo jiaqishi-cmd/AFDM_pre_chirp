@@ -28,6 +28,7 @@ end
 
 function plot_mean_error_ratio(summary, caseLabels, outputDir, timestamp)
     values = [ ...
+        ones(height(summary), 1), ...
         summary.mean_E_GPS ./ summary.mean_E_base, ...
         summary.mean_E_proposed ./ summary.mean_E_base, ...
         summary.mean_E_zero ./ summary.mean_E_base, ...
@@ -37,12 +38,12 @@ function plot_mean_error_ratio(summary, caseLabels, outputDir, timestamp)
     figure('Name', 'Bemani Case A-D relative mean equation error', 'Color', 'w');
     bar(values);
     grid on;
-    yline(1, 'k--', 'Baseline');
+    yline(1, 'k--', 'Reference');
     xticklabels(caseLabels);
     ylabel('Mean error / baseline mean error');
     xlabel('Named two-path case');
     title('Relative Bemani key-equation mismatch by case');
-    legend({'GPS', 'Proposed', 'c2=0', 'c2=1/(2N)'}, 'Location', 'northwest');
+    legend({'Baseline', 'GPS', 'Proposed', 'c2=0', 'c2=1/(2N)'}, 'Location', 'northwest');
     saveas(gcf, fullfile(outputDir, ['bemani_case_summary_mean_error_ratio_' timestamp '.png']));
 end
 
