@@ -49,6 +49,14 @@ cd matlab_afdm
 run_ber_comparison
 ```
 
+For Bemani two-path key-equation searches comparing uniform c2 and fixed
+GPS c2,m group patterns:
+
+```matlab
+cd matlab_afdm
+main_bemani_gps_key_equation_search
+```
+
 For adaptive BER runs with target-error stopping:
 
 ```matlab
