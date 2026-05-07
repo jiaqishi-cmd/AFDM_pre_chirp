@@ -20,9 +20,30 @@ function plot_bemani_case_summary(resultsSource, outputDir)
 
     timestamp = datestr(now, 'yyyymmdd_HHMMSS');
     plot_mean_error(summary, caseLabels, outputDir, timestamp);
+    plot_mean_error_ratio(summary, caseLabels, outputDir, timestamp);
     plot_phi_sigma_ratio(summary, caseLabels, outputDir, timestamp);
     plot_phi_col_corr(summary, caseLabels, outputDir, timestamp);
     write_summary_table(summary, outputDir, timestamp);
+end
+
+function plot_mean_error_ratio(summary, caseLabels, outputDir, timestamp)
+    values = [ ...
+        summary.mean_E_GPS ./ summary.mean_E_base, ...
+        summary.mean_E_proposed ./ summary.mean_E_base, ...
+        summary.mean_E_zero ./ summary.mean_E_base, ...
+        summary.mean_E_ocdm ./ summary.mean_E_base ...
+        ];
+
+    figure('Name', 'Bemani Case A-D relative mean equation error', 'Color', 'w');
+    bar(values);
+    grid on;
+    yline(1, 'k--', 'Baseline');
+    xticklabels(caseLabels);
+    ylabel('Mean error / baseline mean error');
+    xlabel('Named two-path case');
+    title('Relative Bemani key-equation mismatch by case');
+    legend({'GPS', 'Proposed', 'c2=0', 'c2=1/(2N)'}, 'Location', 'northwest');
+    saveas(gcf, fullfile(outputDir, ['bemani_case_summary_mean_error_ratio_' timestamp '.png']));
 end
 
 function summary = select_case_rows(results_table, caseNames)
