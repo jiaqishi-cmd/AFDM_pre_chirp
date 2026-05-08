@@ -57,6 +57,15 @@ cd matlab_afdm
 main_bemani_gps_key_equation_search
 ```
 
+For stronger GPS-only Phi(delta) rank-loss searches and follow-up BER-SNR
+validation:
+
+```matlab
+cd matlab_afdm
+main_gps_unique_rank_loss_search
+main_gps_bestcase_ber_snr
+```
+
 For adaptive BER runs with target-error stopping:
 
 ```matlab
