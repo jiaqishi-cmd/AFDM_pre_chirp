@@ -104,21 +104,36 @@ Remaining search cleanup:
 - Update `run_partial_reuse_topK_sweep.m`
 - Consider migrating `run_papr_search_complexity_study.m`
 
-## Recommended Next Steps
-
 ### Stage 4: tx/rx/channel packages
 
-Move the core link functions into:
+Stage 4A tx package is in progress/done:
+
+- Added `matlab_afdm/+afdm/+tx/`
+- Added:
+  - `afdm.tx.engine`
+  - `afdm.tx.idaft_mod`
+  - `afdm.tx.add_cpp`
+  - `afdm.tx.compute_papr`
+  - `afdm.tx.random_data`
+- Kept compatibility wrappers:
+  - `afdm_tx_engine`
+  - `idaft_mod`
+  - `add_cpp`
+  - `compute_papr`
+  - `random_data_generator`
+- Updated:
+  - `simulate_frame`
+  - `afdm.search.*` PAPR/IDAFT calls
+
+Remaining core link package work:
 
 ```text
-+afdm/+tx/
 +afdm/+rx/
 +afdm/+channel/
 ```
 
 Candidates:
 
-- `idaft_mod`, `compute_papr`, `afdm_tx_engine`
 - `daft_demod`, `mmse_equalize`, `estimate_effective_channel`
 - `multipath_channel`, `add_awgn`
 

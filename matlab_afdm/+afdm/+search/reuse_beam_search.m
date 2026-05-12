@@ -11,7 +11,7 @@ function out = reuse_beam_search(symbols, baseC2, offsets, groupIndex, searchOs,
     initWaveform = afdm.search.combine_partial_waveform(sPartSearch, initPattern);
     states = make_initial_state(M, V, ceil(W / 2));
     states.waveform = initWaveform;
-    states.metric = compute_papr(initWaveform);
+    states.metric = afdm.tx.compute_papr(initWaveform);
     evalSearch = 0;
 
     for groupId = 1:V
@@ -26,7 +26,7 @@ function out = reuse_beam_search(symbols, baseC2, offsets, groupIndex, searchOs,
                 waveform = states(stateIdx).waveform - sPartSearch{groupId, oldCand} + sPartSearch{groupId, candId};
                 expanded(outIdx).pattern = pattern;
                 expanded(outIdx).waveform = waveform;
-                expanded(outIdx).metric = compute_papr(waveform);
+                expanded(outIdx).metric = afdm.tx.compute_papr(waveform);
                 evalSearch = evalSearch + 1;
             end
         end
@@ -40,7 +40,7 @@ function out = reuse_beam_search(symbols, baseC2, offsets, groupIndex, searchOs,
     finalPapr = zeros(1, finalK);
     for idx = 1:finalK
         s = afdm.search.combine_partial_waveform(sPartFinal, states(idx).pattern);
-        finalPapr(idx) = compute_papr(s);
+        finalPapr(idx) = afdm.tx.compute_papr(s);
     end
 
     [bestPapr, bestIdx] = min(finalPapr);

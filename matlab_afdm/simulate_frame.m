@@ -22,7 +22,7 @@ function frame = simulate_frame(config, frameSeed, options)
         config = generate_channel_profile(config, config.channel.profile);
     end
 
-    [signal_cpp, papr, tx_bits, tx_state] = afdm_tx_engine(config);
+    [signal_cpp, papr, tx_bits, tx_state] = afdm.tx.engine(config);
     r_signal = multipath_channel(signal_cpp, config);
     [r_signal, noise_var] = add_awgn(r_signal, config);
     config.channel.noise_var = noise_var;

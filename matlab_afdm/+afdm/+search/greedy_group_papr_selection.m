@@ -5,8 +5,8 @@ function selection = greedy_group_papr_selection(symbols, numSubcarriers, c1, ca
     numCandidates = size(candidateSet, 2);
 
     c2Vec = candidateSet(:, 1);
-    bestSignal = idaft_mod(symbols, numSubcarriers, c1, c2Vec);
-    bestPapr = compute_papr(bestSignal);
+    bestSignal = afdm.tx.idaft_mod(symbols, numSubcarriers, c1, c2Vec);
+    bestPapr = afdm.tx.compute_papr(bestSignal);
     selectedCandidateIndex = ones(numGroups, 1);
 
     for groupId = 1:numGroups
@@ -20,8 +20,8 @@ function selection = greedy_group_papr_selection(symbols, numSubcarriers, c1, ca
             c2Trial = c2Vec;
             c2Trial(indices) = candidateSet(indices, candidateId);
 
-            signalTrial = idaft_mod(symbols, numSubcarriers, c1, c2Trial);
-            paprTrial = compute_papr(signalTrial);
+            signalTrial = afdm.tx.idaft_mod(symbols, numSubcarriers, c1, c2Trial);
+            paprTrial = afdm.tx.compute_papr(signalTrial);
 
             if paprTrial < groupBestPapr
                 groupBestC2 = c2Trial(indices);

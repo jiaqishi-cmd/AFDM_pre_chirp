@@ -18,7 +18,7 @@ function out = full_beam_search(symbols, baseC2, offsets, groupIndex, searchOs, 
                 pattern(groupId) = candId;
                 s = afdm.search.direct_full_waveform(symbols, baseC2, offsets, groupIndex, pattern, searchOs);
                 expanded(outIdx).pattern = pattern;
-                expanded(outIdx).metric = compute_papr(s);
+                expanded(outIdx).metric = afdm.tx.compute_papr(s);
                 evalCount = evalCount + 1;
                 numIfft = numIfft + 1;
             end
@@ -31,7 +31,7 @@ function out = full_beam_search(symbols, baseC2, offsets, groupIndex, searchOs, 
     finalPapr = zeros(1, finalK);
     for idx = 1:finalK
         s = afdm.search.direct_full_waveform(symbols, baseC2, offsets, groupIndex, states(idx).pattern, finalOs);
-        finalPapr(idx) = compute_papr(s);
+        finalPapr(idx) = afdm.tx.compute_papr(s);
         evalCount = evalCount + 1;
         numIfft = numIfft + 1;
     end
