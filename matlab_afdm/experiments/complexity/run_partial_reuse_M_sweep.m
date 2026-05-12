@@ -55,17 +55,19 @@ for mIdx = 1:numM
     candidate_offsets = linspace(-delta, delta, W);
     group_index = repelem((1:V).', M / V);
 
-    % Warm-up锛岄伩鍏嶇涓€娆″嚱鏁拌皟鐢ㄥ奖鍝嶈鏃躲€?    warmSymbols = 1 - 2 * randi([0, 1], M, 1);
-    full_search_beam(warmSymbols, base_c2, candidate_offsets, group_index, search_os, final_os, beam_width, topK);
-    reuse_search_beam(warmSymbols, base_c2, candidate_offsets, group_index, search_os, final_os, beam_width, topK);
+    % Warm-up before timing.
+    warmSymbols = 1 - 2 * randi([0, 1], M, 1);
+    afdm.search.full_beam_search(warmSymbols, base_c2, candidate_offsets, group_index, search_os, final_os, beam_width, topK);
+    afdm.search.reuse_beam_search(warmSymbols, base_c2, candidate_offsets, group_index, search_os, final_os, beam_width, topK);
 
-    % partial waveform 鑷锛氫换鎰?pattern 涓?partial 鍚堟垚搴旂瓑浜?direct waveform銆?    relErr = zeros(selfCheckTrials, 1);
+    % Check that partial-waveform composition matches direct waveform.
+    relErr = zeros(selfCheckTrials, 1);
     x = 1 - 2 * randi([0, 1], M, 1);
-    sPart = precompute_partial_waveforms(x, base_c2, candidate_offsets, group_index, final_os);
+    sPart = afdm.search.precompute_partial_waveforms(x, base_c2, candidate_offsets, group_index, final_os);
     for trialIdx = 1:selfCheckTrials
         pattern = randi(W, 1, V);
-        sDirect = direct_full_waveform(x, base_c2, candidate_offsets, group_index, pattern, final_os);
-        sPartial = combine_partial_waveform(sPart, pattern);
+        sDirect = afdm.search.direct_full_waveform(x, base_c2, candidate_offsets, group_index, pattern, final_os);
+        sPartial = afdm.search.combine_partial_waveform(sPart, pattern);
         relErr(trialIdx) = norm(sDirect - sPartial) / max(norm(sDirect), eps);
     end
     selfcheck_max_rel_err(mIdx) = max(relErr);
@@ -86,11 +88,11 @@ for mIdx = 1:numM
         symbols = 1 - 2 * randi([0, 1], M, 1);
 
         tStart = tic;
-        outFull = full_search_beam(symbols, base_c2, candidate_offsets, group_index, search_os, final_os, beam_width, topK);
+        outFull = afdm.search.full_beam_search(symbols, base_c2, candidate_offsets, group_index, search_os, final_os, beam_width, topK);
         runtimeFull(frameIdx) = toc(tStart);
 
         tStart = tic;
-        outReuse = reuse_search_beam(symbols, base_c2, candidate_offsets, group_index, search_os, final_os, beam_width, topK);
+        outReuse = afdm.search.reuse_beam_search(symbols, base_c2, candidate_offsets, group_index, search_os, final_os, beam_width, topK);
         runtimeReuse(frameIdx) = toc(tStart);
 
         paprFull(frameIdx) = outFull.papr;
@@ -162,160 +164,3 @@ legend({'Full recompute', 'Partial reuse'}, 'Location', 'best');
 saveas(fig3, fullfile(outputDir, 'fig_partial_reuse_M_ifft_count.png'));
 
 fprintf('Saved M sweep results to %s\n', fullfile(outputDir, 'results_partial_reuse_M_sweep.mat'));
-
-function out = full_search_beam(symbols, base_c2, offsets, group_index, search_os, final_os, beam_width, topK)
-    V = max(group_index);
-    W = numel(offsets);
-    M = numel(symbols);
-    states = make_initial_state(M, V, ceil(W / 2));
-    eval_count = 0;
-    num_ifft = 0;
-    for groupId = 1:V
-        expanded = repmat(make_state(M, V), 1, numel(states) * W);
-        outIdx = 0;
-        for stateIdx = 1:numel(states)
-            for candId = 1:W
-                outIdx = outIdx + 1;
-                pattern = states(stateIdx).pattern;
-                pattern(groupId) = candId;
-                s = direct_full_waveform(symbols, base_c2, offsets, group_index, pattern, search_os);
-                expanded(outIdx).pattern = pattern;
-                expanded(outIdx).metric = compute_papr(s);
-                eval_count = eval_count + 1;
-                num_ifft = num_ifft + 1;
-            end
-        end
-        [~, order] = sort([expanded.metric], 'ascend');
-        states = expanded(order(1:min(beam_width, numel(order))));
-    end
-    finalK = min(topK, numel(states));
-    finalPapr = zeros(1, finalK);
-    for idx = 1:finalK
-        s = direct_full_waveform(symbols, base_c2, offsets, group_index, states(idx).pattern, final_os);
-        finalPapr(idx) = compute_papr(s);
-        eval_count = eval_count + 1;
-        num_ifft = num_ifft + 1;
-    end
-    [bestPapr, bestIdx] = min(finalPapr);
-    out.papr = bestPapr;
-    out.pattern = states(bestIdx).pattern;
-    out.eval_count = eval_count;
-    out.num_ifft = num_ifft;
-end
-
-function out = reuse_search_beam(symbols, base_c2, offsets, group_index, search_os, final_os, beam_width, topK)
-    V = max(group_index);
-    W = numel(offsets);
-    M = numel(symbols);
-    s_part_search = precompute_partial_waveforms(symbols, base_c2, offsets, group_index, search_os);
-    num_ifft = V * W;
-    initPattern = ceil(W / 2) * ones(1, V);
-    initWaveform = combine_partial_waveform(s_part_search, initPattern);
-    states = make_initial_state(M, V, ceil(W / 2));
-    states.waveform = initWaveform;
-    states.metric = compute_papr(initWaveform);
-    eval_count = 0;
-    for groupId = 1:V
-        expanded = repmat(make_state(M, V), 1, numel(states) * W);
-        outIdx = 0;
-        for stateIdx = 1:numel(states)
-            oldCand = states(stateIdx).pattern(groupId);
-            for candId = 1:W
-                outIdx = outIdx + 1;
-                pattern = states(stateIdx).pattern;
-                pattern(groupId) = candId;
-                waveform = states(stateIdx).waveform - s_part_search{groupId, oldCand} + s_part_search{groupId, candId};
-                expanded(outIdx).pattern = pattern;
-                expanded(outIdx).waveform = waveform;
-                expanded(outIdx).metric = compute_papr(waveform);
-                eval_count = eval_count + 1;
-            end
-        end
-        [~, order] = sort([expanded.metric], 'ascend');
-        states = expanded(order(1:min(beam_width, numel(order))));
-    end
-    s_part_final = precompute_partial_waveforms(symbols, base_c2, offsets, group_index, final_os);
-    num_ifft = num_ifft + V * W;
-    finalK = min(topK, numel(states));
-    finalPapr = zeros(1, finalK);
-    for idx = 1:finalK
-        s = combine_partial_waveform(s_part_final, states(idx).pattern);
-        finalPapr(idx) = compute_papr(s);
-        eval_count = eval_count + 1;
-    end
-    [bestPapr, bestIdx] = min(finalPapr);
-    out.papr = bestPapr;
-    out.pattern = states(bestIdx).pattern;
-    out.eval_count = eval_count;
-    out.num_ifft = num_ifft;
-end
-
-function state = make_initial_state(M, V, candId)
-    state = make_state(M, V);
-    state.pattern = candId * ones(1, V);
-    state.metric = Inf;
-end
-
-function state = make_state(M, V)
-    state = struct('pattern', zeros(1, V), 'metric', Inf, 'waveform', zeros(M, 1));
-end
-
-function s_part = precompute_partial_waveforms(symbols, base_c2, offsets, group_index, os)
-    V = max(group_index);
-    W = numel(offsets);
-    M = numel(symbols);
-    s_part = cell(V, W);
-    for groupId = 1:V
-        groupMask = group_index == groupId;
-        for candId = 1:W
-            c2Vec = base_c2 * ones(M, 1);
-            c2Vec(groupMask) = base_c2 + offsets(candId);
-            s_part{groupId, candId} = partial_waveform_for_group(symbols, c2Vec, groupMask, os);
-        end
-    end
-end
-
-function s = combine_partial_waveform(s_part, pattern)
-    s = zeros(size(s_part{1, 1}));
-    for groupId = 1:numel(pattern)
-        s = s + s_part{groupId, pattern(groupId)};
-    end
-end
-
-function s = direct_full_waveform(symbols, base_c2, offsets, group_index, pattern, os)
-    M = numel(symbols);
-    c2Vec = base_c2 * ones(M, 1);
-    for groupId = 1:numel(pattern)
-        c2Vec(group_index == groupId) = base_c2 + offsets(pattern(groupId));
-    end
-    s = full_waveform(symbols, c2Vec, os);
-end
-
-function s = partial_waveform_for_group(symbols, c2Vec, groupMask, os)
-    M = numel(symbols);
-    m = (0:M-1).';
-    xPre = zeros(M, 1);
-    xPre(groupMask) = symbols(groupMask) .* exp(1i * 2 * pi .* c2Vec(groupMask) .* (m(groupMask).^2));
-    s = ifft_oversampled(xPre, os);
-end
-
-function s = full_waveform(symbols, c2Vec, os)
-    M = numel(symbols);
-    m = (0:M-1).';
-    xPre = symbols(:) .* exp(1i * 2 * pi .* c2Vec(:) .* (m.^2));
-    s = ifft_oversampled(xPre, os);
-end
-
-function s = ifft_oversampled(xPre, os)
-    M = numel(xPre);
-    if os == 1
-        s = ifft(xPre) * sqrt(M);
-        return;
-    end
-    Mos = os * M;
-    half = M / 2;
-    Xos = zeros(Mos, 1);
-    Xos(1:half) = xPre(1:half);
-    Xos(end-half+1:end) = xPre(half+1:end);
-    s = ifft(Xos) * sqrt(Mos);
-end

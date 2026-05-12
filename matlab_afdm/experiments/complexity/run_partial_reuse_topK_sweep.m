@@ -48,10 +48,11 @@ group_index = repelem((1:V).', M / V);
 fprintf('========== Partial reuse topK sweep ==========\n');
 fprintf('M=%d V=%d W=%d searchOS=%d finalOS=%d frames=%d\n', M, V, W, search_os, final_os, numFrames);
 
-% Warm-up锛岄伩鍏嶇涓€娆″嚱鏁拌皟鐢ㄥ奖鍝嶈鏃躲€?warmDelta = delta_ratio_list(1) * base_c2;
+% Warm-up before timing.
+warmDelta = delta_ratio_list(1) * base_c2;
 warmOffsets = linspace(-warmDelta, warmDelta, W);
 warmSymbols = 1 - 2 * randi([0, 1], M, 1);
-reuse_search_beam(warmSymbols, base_c2, warmOffsets, group_index, search_os, final_os, topK_list(1), topK_list(1));
+afdm.search.reuse_beam_search(warmSymbols, base_c2, warmOffsets, group_index, search_os, final_os, topK_list(1), topK_list(1));
 
 for deltaIdx = 1:numDelta
     delta_ratio = delta_ratio_list(deltaIdx);
@@ -74,7 +75,7 @@ for deltaIdx = 1:numDelta
             symbols = 1 - 2 * randi([0, 1], M, 1);
 
             tStart = tic;
-            out = reuse_search_beam(symbols, base_c2, candidate_offsets, group_index, search_os, final_os, beam_width, topK);
+            out = afdm.search.reuse_beam_search(symbols, base_c2, candidate_offsets, group_index, search_os, final_os, beam_width, topK);
             runtimeVec(frameIdx) = toc(tStart);
 
             paprVec(frameIdx) = out.papr;
@@ -116,7 +117,8 @@ for deltaIdx = 1:numDelta
     delta_ratio = delta_ratio_list(deltaIdx);
     [bestPapr, bestIdx] = min(papr_at_1e3(deltaIdx, :));
     recTopK = topK_list(bestIdx);
-    % 鐢变簬鏈夐檺甯ф暟涓?CCDF=1e-3 杩戜技楂樺垎浣?鏈€澶у€硷紝鐩搁偦 topK 鍙兘鏈夋姈鍔ㄣ€?    % 杩欓噷鐢ㄢ€滆繘鍏?best+0.1 dB 鑼冨洿鐨勬渶灏?topK鈥濅綔涓洪ケ鍜屾帹鑽愶紝鏇寸ǔ鍋ャ€?    nearBestIdx = find(papr_at_1e3(deltaIdx, :) <= bestPapr + 0.1, 1, 'first');
+    % Use the smallest topK within best+0.1 dB as the saturation point.
+    nearBestIdx = find(papr_at_1e3(deltaIdx, :) <= bestPapr + 0.1, 1, 'first');
     satTopK = topK_list(nearBestIdx);
     fprintf('delta/c2=%.3f: best topK=%d (PAPR@1e-3=%.3f dB), saturation topK~%d\n', ...
         delta_ratio, recTopK, bestPapr, satTopK);
@@ -165,110 +167,6 @@ legend(arrayfun(@(x) sprintf('\\delta/c_2=%.2f', x), delta_ratio_list, 'UniformO
 saveas(fig5, fullfile(outputDir, 'fig_topK_complexity_tradeoff.png'));
 
 fprintf('Saved topK sweep results to %s\n', fullfile(outputDir, 'results_partial_reuse_topK_sweep.mat'));
-
-function out = reuse_search_beam(symbols, base_c2, offsets, group_index, search_os, final_os, beam_width, topK)
-    V = max(group_index);
-    W = numel(offsets);
-    M = numel(symbols);
-    s_part_search = precompute_partial_waveforms(symbols, base_c2, offsets, group_index, search_os);
-    num_ifft = V * W;
-    initPattern = ceil(W / 2) * ones(1, V);
-    initWaveform = combine_partial_waveform(s_part_search, initPattern);
-    states = make_initial_state(M, V, ceil(W / 2));
-    states.waveform = initWaveform;
-    states.metric = compute_papr(initWaveform);
-    eval_search = 0;
-    for groupId = 1:V
-        expanded = repmat(make_state(M, V), 1, numel(states) * W);
-        outIdx = 0;
-        for stateIdx = 1:numel(states)
-            oldCand = states(stateIdx).pattern(groupId);
-            for candId = 1:W
-                outIdx = outIdx + 1;
-                pattern = states(stateIdx).pattern;
-                pattern(groupId) = candId;
-                waveform = states(stateIdx).waveform - s_part_search{groupId, oldCand} + s_part_search{groupId, candId};
-                expanded(outIdx).pattern = pattern;
-                expanded(outIdx).waveform = waveform;
-                expanded(outIdx).metric = compute_papr(waveform);
-                eval_search = eval_search + 1;
-            end
-        end
-        [~, order] = sort([expanded.metric], 'ascend');
-        states = expanded(order(1:min(beam_width, numel(order))));
-    end
-    s_part_final = precompute_partial_waveforms(symbols, base_c2, offsets, group_index, final_os);
-    num_ifft = num_ifft + V * W;
-    finalK = min(topK, numel(states));
-    finalPapr = zeros(1, finalK);
-    eval_final = 0;
-    for idx = 1:finalK
-        s = combine_partial_waveform(s_part_final, states(idx).pattern);
-        finalPapr(idx) = compute_papr(s);
-        eval_final = eval_final + 1;
-    end
-    [bestPapr, bestIdx] = min(finalPapr);
-    out.papr = bestPapr;
-    out.pattern = states(bestIdx).pattern;
-    out.eval_search = eval_search;
-    out.eval_final = eval_final;
-    out.eval_count = eval_search + eval_final;
-    out.num_ifft = num_ifft;
-end
-
-function state = make_initial_state(M, V, candId)
-    state = make_state(M, V);
-    state.pattern = candId * ones(1, V);
-    state.metric = Inf;
-end
-
-function state = make_state(M, V)
-    state = struct('pattern', zeros(1, V), 'metric', Inf, 'waveform', zeros(M, 1));
-end
-
-function s_part = precompute_partial_waveforms(symbols, base_c2, offsets, group_index, os)
-    V = max(group_index);
-    W = numel(offsets);
-    M = numel(symbols);
-    s_part = cell(V, W);
-    for groupId = 1:V
-        groupMask = group_index == groupId;
-        for candId = 1:W
-            c2Vec = base_c2 * ones(M, 1);
-            c2Vec(groupMask) = base_c2 + offsets(candId);
-            s_part{groupId, candId} = partial_waveform_for_group(symbols, c2Vec, groupMask, os);
-        end
-    end
-end
-
-function s = combine_partial_waveform(s_part, pattern)
-    s = zeros(size(s_part{1, 1}));
-    for groupId = 1:numel(pattern)
-        s = s + s_part{groupId, pattern(groupId)};
-    end
-end
-
-function s = partial_waveform_for_group(symbols, c2Vec, groupMask, os)
-    M = numel(symbols);
-    m = (0:M-1).';
-    xPre = zeros(M, 1);
-    xPre(groupMask) = symbols(groupMask) .* exp(1i * 2 * pi .* c2Vec(groupMask) .* (m(groupMask).^2));
-    s = ifft_oversampled(xPre, os);
-end
-
-function s = ifft_oversampled(xPre, os)
-    M = numel(xPre);
-    if os == 1
-        s = ifft(xPre) * sqrt(M);
-        return;
-    end
-    Mos = os * M;
-    half = M / 2;
-    Xos = zeros(Mos, 1);
-    Xos(1:half) = xPre(1:half);
-    Xos(end-half+1:end) = xPre(half+1:end);
-    s = ifft(Xos) * sqrt(Mos);
-end
 
 function value = papr_at_ccdf(paprVec, ccdfLevel)
     paprVec = sort(paprVec(:), 'ascend');
