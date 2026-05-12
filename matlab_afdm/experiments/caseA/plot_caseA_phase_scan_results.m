@@ -1,6 +1,5 @@
-function plot_caseA_phase_scan_results(scan, outputDir)
-%PLOT_CASEA_PHASE_SCAN_RESULTS 绘制 Case A 相位扫描结果。
-
+﻿function plot_caseA_phase_scan_results(scan, outputDir)
+%PLOT_CASEA_PHASE_SCAN_RESULTS 缁樺埗 Case A 鐩镐綅鎵弿缁撴灉銆?
     if nargin < 2 || isempty(outputDir)
         outputDir = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'results');
     end

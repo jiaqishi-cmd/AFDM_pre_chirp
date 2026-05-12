@@ -1,9 +1,6 @@
-% MAIN_FOCUSED_BEMANI_GPS_SEARCH
-% 聚焦 Bemani 关键等式的 GPS-AFDM 反例搜索。
-% 本脚本只搜索理论上最危险的 A-F 六个两径 case，不扫描 total H_eff rank。
-% 核心指标是 key-equation mismatch 和 Phi(delta)=[H1*delta,H2*delta]。
-
-rootDir = fileparts(mfilename('fullpath'));
+﻿% MAIN_FOCUSED_BEMANI_GPS_SEARCH
+% 鑱氱劍 Bemani 鍏抽敭绛夊紡鐨?GPS-AFDM 鍙嶄緥鎼滅储銆?% 鏈剼鏈彧鎼滅储鐞嗚涓婃渶鍗遍櫓鐨?A-F 鍏釜涓ゅ緞 case锛屼笉鎵弿 total H_eff rank銆?% 鏍稿績鎸囨爣鏄?key-equation mismatch 鍜?Phi(delta)=[H1*delta,H2*delta]銆?
+rootDir = find_afdm_root(fileparts(mfilename('fullpath')));
 addpath(rootDir);
 setup_paths(rootDir);
 
@@ -54,8 +51,7 @@ for case_idx = 1:numel(cases)
         trial_rows = evaluate_delta_set(delta_set, case_def, pattern_name, d_gps, ...
             H1_base, H2_base, H1_gps, H2_gps, c2_base, N);
 
-        % 如果结构化 delta 没有触发强信号，再追加小规模随机 delta。
-        if ~has_strong_case(trial_rows)
+        % 濡傛灉缁撴瀯鍖?delta 娌℃湁瑙﹀彂寮轰俊鍙凤紝鍐嶈拷鍔犲皬瑙勬ā闅忔満 delta銆?        if ~has_strong_case(trial_rows)
             random_set = build_random_delta_set(N, 200, 200, 20260508 + 100 * case_idx + pattern_idx);
             trial_rows = [trial_rows, evaluate_delta_set(random_set, case_def, pattern_name, d_gps, ...
                 H1_base, H2_base, H1_gps, H2_gps, c2_base, N)]; %#ok<AGROW>
@@ -244,10 +240,8 @@ function print_top_tables(T)
 end
 
 function focused_best_cases = select_focused_best_cases(T, N, V, M, alpha_max, c1, c2_base)
-    % 保存两个代表性 case：
-    % 1) mismatch_case：key-equation mismatch 改善最大；
-    % 2) phi_case：Phi(delta) 的 sigma_ratio 降低、列相关升高最明显。
-    [~, mismatch_idx] = max(T.improvement_mean);
+    % 淇濆瓨涓や釜浠ｈ〃鎬?case锛?    % 1) mismatch_case锛歬ey-equation mismatch 鏀瑰杽鏈€澶э紱
+    % 2) phi_case锛歅hi(delta) 鐨?sigma_ratio 闄嶄綆銆佸垪鐩稿叧鍗囬珮鏈€鏄庢樉銆?    [~, mismatch_idx] = max(T.improvement_mean);
     [~, phi_idx] = min(T.sigma_ratio_gps_over_base);
 
     focused_best_cases.mismatch_case = table_row_to_best_case(T(mismatch_idx, :), N, V, M, alpha_max, c1, c2_base);
@@ -265,8 +259,7 @@ function focused_best_cases = select_focused_best_cases(T, N, V, M, alpha_max, c
 end
 
 function best_case = table_row_to_best_case(row, N, V, M, alpha_max, c1, c2_base)
-    % run_bestcase_ber_snr 需要的字段在这里集中补齐。
-    best_case = struct();
+    % run_bestcase_ber_snr 闇€瑕佺殑瀛楁鍦ㄨ繖閲岄泦涓ˉ榻愩€?    best_case = struct();
     best_case.N = N;
     best_case.V = V;
     best_case.M = M;

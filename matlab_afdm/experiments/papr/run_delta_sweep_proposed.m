@@ -1,13 +1,12 @@
-% RUN_DELTA_SWEEP_PROPOSED
-% 分析 proposed 三点扰动集合 {c2-delta, c2, c2+delta} 中 delta 大小时，
-% 对 PAPR、信道无关结构风险和 Case A fixed-channel BER 的影响。
-
-rootDir = fileparts(mfilename('fullpath'));
+﻿% RUN_DELTA_SWEEP_PROPOSED
+% 鍒嗘瀽 proposed 涓夌偣鎵板姩闆嗗悎 {c2-delta, c2, c2+delta} 涓?delta 澶у皬鏃讹紝
+% 瀵?PAPR銆佷俊閬撴棤鍏崇粨鏋勯闄╁拰 Case A fixed-channel BER 鐨勫奖鍝嶃€?
+rootDir = find_afdm_root(fileparts(mfilename('fullpath')));
 addpath(rootDir);
 setup_paths(rootDir);
 
 % ========================
-% 可调参数
+% 鍙皟鍙傛暟
 % ========================
 rng(1, 'twister');
 delta_ratio_list = [0.01 0.02 0.05 0.1 0.2 0.5 1.0];
@@ -21,15 +20,14 @@ theta_caseA = pi;
 seedBase = 20260509;
 
 % ========================
-% 基本系统参数
+% 鍩烘湰绯荤粺鍙傛暟
 % ========================
 baseConfig = afdm_config();
 N = baseConfig.waveform.NumSubcarriers;
 V = baseConfig.pre_chirp.num_groups;
 c2_base = baseConfig.pre_chirp.base_c2;
 c1_caseA = 7 / (2 * 64);
-gpsPattern = [2 2 1 1]; %#ok<NASGU> 用于结构参考，不影响 greedy GPS PAPR。
-
+gpsPattern = [2 2 1 1]; %#ok<NASGU> 鐢ㄤ簬缁撴瀯鍙傝€冿紝涓嶅奖鍝?greedy GPS PAPR銆?
 metricsCfg = struct();
 metricsCfg.N = N;
 metricsCfg.M = N;
@@ -48,7 +46,7 @@ fprintf('N=%d, V=%d, c2=%.6g, PAPR frames=%d, BER SNR=%g dB\n', ...
     N, V, c2_base, numPaprFrames, SNR_dB);
 
 % ========================
-% 参考：baseline 和 GPS 的 PAPR 与 BER
+% 鍙傝€冿細baseline 鍜?GPS 鐨?PAPR 涓?BER
 % ========================
 fprintf('\nSampling baseline/GPS PAPR references...\n');
 [paprBaseSamples, ~] = sample_scheme_papr(baseConfig, 'baseline', numPaprFrames, seedBase);
@@ -63,8 +61,7 @@ c2_gps_ref = build_pattern_c2_from_candidate_set(gpsProfile.candidate_set, gpsPr
 ber_gps_ref = run_caseA_scheme_ber(c2_gps_ref, SNR_dB, theta_caseA, c1_caseA, berMaxBits, berMinErrTarget, seedBase + 12);
 
 % ========================
-% delta sweep 主循环
-% ========================
+% delta sweep 涓诲惊鐜?% ========================
 numDelta = numel(delta_ratio_list);
 papr_prop_at_target = zeros(numDelta, 1);
 ber_prop = zeros(numDelta, 1);
@@ -121,8 +118,7 @@ for deltaIdx = 1:numDelta
 end
 
 % ========================
-% 保存和绘图
-% ========================
+% 淇濆瓨鍜岀粯鍥?% ========================
 results_table = table(delta_ratio_list(:), papr_prop_at_target, mean_papr_prop, p99_papr_prop, ...
     R_struct, R_phase, alignment_ratio, diagonal_perturb_dist, R_dev, ...
     ber_prop, ber_prop_err, ber_prop_bits, ...
@@ -179,8 +175,7 @@ function c2Vec = expand_c2(c2, N)
 end
 
 function value = papr_at_ccdf(samples, targetCcdf)
-    % CCDF=P(PAPR>x)。target=1e-3 对应 99.9 percentile。
-    value = percentile_by_sort(samples, 1 - targetCcdf);
+    % CCDF=P(PAPR>x)銆倀arget=1e-3 瀵瑰簲 99.9 percentile銆?    value = percentile_by_sort(samples, 1 - targetCcdf);
 end
 
 function value = percentile_by_sort(samples, q)
@@ -238,14 +233,12 @@ function metrics = compute_selected_structural_metrics(c2SelectedList, c2BaseVec
         metrics(idx).R_phase = item.phase_degeneracy_risk;
         metrics(idx).alignment_ratio = item.constellation_alignment_ratio;
         metrics(idx).diagonal_perturb_dist = diagonalDist;
-        metrics(idx).R_dev = diagonalDist / 2; % 归一到 [0,1] 附近的相位 mask 偏离风险。
-    end
+        metrics(idx).R_dev = diagonalDist / 2; % 褰掍竴鍒?[0,1] 闄勮繎鐨勭浉浣?mask 鍋忕椋庨櫓銆?    end
 end
 
 function [minusRatio, zeroRatio, plusRatio] = candidate_selection_ratios(selectionMat)
     total = numel(selectionMat);
-    % proposed_profile 当前候选顺序为 [c2, c2-delta, c2+delta]。
-    zeroRatio = sum(selectionMat(:) == 1) / total;
+    % proposed_profile 褰撳墠鍊欓€夐『搴忎负 [c2, c2-delta, c2+delta]銆?    zeroRatio = sum(selectionMat(:) == 1) / total;
     minusRatio = sum(selectionMat(:) == 2) / total;
     plusRatio = sum(selectionMat(:) == 3) / total;
 end

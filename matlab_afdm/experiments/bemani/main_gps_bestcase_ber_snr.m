@@ -1,7 +1,6 @@
-% MAIN_GPS_BESTCASE_BER_SNR
-% 读取第一阶段 best_case 并运行 BER-SNR 验证。
-
-rootDir = fileparts(mfilename('fullpath'));
+﻿% MAIN_GPS_BESTCASE_BER_SNR
+% 璇诲彇绗竴闃舵 best_case 骞惰繍琛?BER-SNR 楠岃瘉銆?
+rootDir = find_afdm_root(fileparts(mfilename('fullpath')));
 addpath(rootDir);
 setup_paths(rootDir);
 

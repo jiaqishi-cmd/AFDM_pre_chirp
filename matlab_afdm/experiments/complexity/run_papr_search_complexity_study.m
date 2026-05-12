@@ -1,16 +1,12 @@
-% RUN_PAPR_SEARCH_COMPLEXITY_STUDY
-% 研究 proposed group-wise small c2 perturbation 的 PAPR 搜索复杂度折中。
-% 不修改现有 PAPR/CCDF 主脚本；这里独立实现不同 oversampling 搜索策略。
-%
-% 所有最终报告的 PAPR 均使用 OS=4 重新计算，保证公平。
-% 搜索阶段可使用 OS=1/2/4，用于研究复杂度降低。
-
-rootDir = fileparts(mfilename('fullpath'));
+﻿% RUN_PAPR_SEARCH_COMPLEXITY_STUDY
+% 鐮旂┒ proposed group-wise small c2 perturbation 鐨?PAPR 鎼滅储澶嶆潅搴︽姌涓€?% 涓嶄慨鏀圭幇鏈?PAPR/CCDF 涓昏剼鏈紱杩欓噷鐙珛瀹炵幇涓嶅悓 oversampling 鎼滅储绛栫暐銆?%
+% 鎵€鏈夋渶缁堟姤鍛婄殑 PAPR 鍧囦娇鐢?OS=4 閲嶆柊璁＄畻锛屼繚璇佸叕骞炽€?% 鎼滅储闃舵鍙娇鐢?OS=1/2/4锛岀敤浜庣爺绌跺鏉傚害闄嶄綆銆?
+rootDir = find_afdm_root(fileparts(mfilename('fullpath')));
 addpath(rootDir);
 setup_paths(rootDir);
 
 % ========================
-% 参数集中设置
+% 鍙傛暟闆嗕腑璁剧疆
 % ========================
 rng(1, 'twister');
 if ~exist('M', 'var'), M = 64; end
@@ -70,7 +66,7 @@ for deltaIdx = 1:numDelta
 end
 
 % ========================
-% 指标统计
+% 鎸囨爣缁熻
 % ========================
 papr_at_1e2 = zeros(numStrategies, numDelta);
 papr_at_1e3 = zeros(numStrategies, numDelta);
@@ -117,10 +113,9 @@ plot_complexity_study(results, outputDir, timestamp);
 print_summary(results);
 
 % TODO: partial_waveform_reuse
-% 可进一步预计算每个 group、每个候选的 oversampled partial waveform:
-% s_part{v,w}，用 s_new = s_old - s_part{v,old} + s_part{v,new}
-% 避免每次候选评估都完整计算 IDAFT/oversampled IFFT。
-
+% 鍙繘涓€姝ラ璁＄畻姣忎釜 group銆佹瘡涓€欓€夌殑 oversampled partial waveform:
+% s_part{v,w}锛岀敤 s_new = s_old - s_part{v,old} + s_part{v,new}
+% 閬垮厤姣忔鍊欓€夎瘎浼伴兘瀹屾暣璁＄畻 IDAFT/oversampled IFFT銆?
 function [candidateSet, groupIndex] = build_proposed_candidates(N, V, baseC2, delta)
     groupIndex = repelem((1:V).', N / V);
     candidateSet = baseC2 + repmat([-delta, 0, delta], N, 1);
@@ -131,8 +126,7 @@ function result = proposed_search_with_strategy(symbols, candidateSet, groupInde
     numCandidates = size(candidateSet, 2);
     N = numel(symbols);
 
-    state.c2 = candidateSet(:, 2); % 从中心 c2 开始
-    state.pattern = 2 * ones(1, numGroups);
+    state.c2 = candidateSet(:, 2); % 浠庝腑蹇?c2 寮€濮?    state.pattern = 2 * ones(1, numGroups);
     state.metric = papr_for_c2(symbols, state.c2, searchOS);
     states = state;
     evalCount = 1;
@@ -182,9 +176,7 @@ function papr = papr_for_c2(symbols, c2Vec, oversampling)
 end
 
 function signal = afdm_oversampled_waveform_for_papr(symbols, c2Vec, oversampling)
-    % PAPR 搜索只需要发射端幅度。post-chirp 为单位模，不影响 PAPR。
-    % OS>1 时，对 pre-chirped DAFT-domain 符号做频域零填充近似过采样。
-    x = symbols(:);
+    % PAPR 鎼滅储鍙渶瑕佸彂灏勭骞呭害銆俻ost-chirp 涓哄崟浣嶆ā锛屼笉褰卞搷 PAPR銆?    % OS>1 鏃讹紝瀵?pre-chirped DAFT-domain 绗﹀彿鍋氶鍩熼浂濉厖杩戜技杩囬噰鏍枫€?    x = symbols(:);
     N = numel(x);
     n = (0:N-1).';
     if isscalar(c2Vec)

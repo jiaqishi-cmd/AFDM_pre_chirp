@@ -1,13 +1,11 @@
-% RUN_PROPOSED_DELTA_BER_CURVES
-% 比较 proposed 不同 delta/c2 在 Case A fixed-channel 下的 BER-SNR 曲线。
-% 该图用于观察 delta 对 BER 鲁棒性的影响，baseline/GPS 作为参考。
-
-rootDir = fileparts(mfilename('fullpath'));
+﻿% RUN_PROPOSED_DELTA_BER_CURVES
+% 姣旇緝 proposed 涓嶅悓 delta/c2 鍦?Case A fixed-channel 涓嬬殑 BER-SNR 鏇茬嚎銆?% 璇ュ浘鐢ㄤ簬瑙傚療 delta 瀵?BER 椴佹鎬х殑褰卞搷锛宐aseline/GPS 浣滀负鍙傝€冦€?
+rootDir = find_afdm_root(fileparts(mfilename('fullpath')));
 addpath(rootDir);
 setup_paths(rootDir);
 
 % ========================
-% 可调参数
+% 鍙皟鍙傛暟
 % ========================
 rng(1, 'twister');
 delta_ratio_list = [0.01 0.02 0.05 0.1 0.2 0.5 1.0];

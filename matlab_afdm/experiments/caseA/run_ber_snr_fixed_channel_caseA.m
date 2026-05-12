@@ -1,6 +1,5 @@
-function ber_results = run_ber_snr_fixed_channel_caseA(theta, gps_pattern, options)
-%RUN_BER_SNR_FIXED_CHANNEL_CASEA 固定 Case A 和两径相位跑 BER-SNR。
-
+﻿function ber_results = run_ber_snr_fixed_channel_caseA(theta, gps_pattern, options)
+%RUN_BER_SNR_FIXED_CHANNEL_CASEA 鍥哄畾 Case A 鍜屼袱寰勭浉浣嶈窇 BER-SNR銆?
     if nargin < 3
         options = struct();
     end

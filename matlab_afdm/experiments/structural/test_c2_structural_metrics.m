@@ -1,19 +1,18 @@
-% TEST_C2_STRUCTURAL_METRICS
-% 完全信道无关地比较 baseline / Yuan GPS / proposed 的 c2 pattern 结构风险。
-
-rootDir = fileparts(mfilename('fullpath'));
+﻿% TEST_C2_STRUCTURAL_METRICS
+% 瀹屽叏淇￠亾鏃犲叧鍦版瘮杈?baseline / Yuan GPS / proposed 鐨?c2 pattern 缁撴瀯椋庨櫓銆?
+rootDir = find_afdm_root(fileparts(mfilename('fullpath')));
 addpath(rootDir);
 setup_paths(rootDir);
 
 % ========================
-% 参数集中设置
+% 鍙傛暟闆嗕腑璁剧疆
 % ========================
 M = 64;
 N = M;
 V = 4;
 c2_base = sqrt(2) / (10 * N);
 delta = c2_base / 16;
-gps_pattern = [2 2 1 1];        % pattern_half2，前面 Case A 搜索中较危险
+gps_pattern = [2 2 1 1];        % pattern_half2锛屽墠闈?Case A 鎼滅储涓緝鍗遍櫓
 proposed_pattern = [2 2 1 1];   % 1->c2-delta, 2->c2, 3->c2+delta
 
 cfg = struct();
@@ -30,7 +29,7 @@ if ~exist(outputDir, 'dir')
 end
 
 % ========================
-% 构造三类 c2 pattern
+% 鏋勯€犱笁绫?c2 pattern
 % ========================
 c2_vec_base = c2_base * ones(M, 1);
 [c2_vec_gps, ~] = build_c2m_gps_pattern(N, V, gps_pattern);
@@ -62,7 +61,7 @@ results_table = table(method_name, phase_entropy, R_phase, eff_bins, ...
 disp(results_table);
 
 % ========================
-% 候选相关性示例：proposed 三个 group-wise 常量 candidate
+% 鍊欓€夌浉鍏虫€хず渚嬶細proposed 涓変釜 group-wise 甯搁噺 candidate
 % ========================
 candidate_vecs = { ...
     (c2_base - delta) * ones(M, 1), ...
@@ -73,7 +72,7 @@ fprintf('Proposed candidate max rho offdiag = %.4f, min separation = %.4f\n', ..
     corr_metrics.max_rho_offdiag, corr_metrics.min_separation);
 
 % ========================
-% 图 1：phase histogram
+% 鍥?1锛歱hase histogram
 % ========================
 timestamp = datestr(now, 'yyyymmdd_HHMMSS');
 figure('Name', 'c2 structural phase histograms', 'Color', 'w');
@@ -94,7 +93,7 @@ end
 saveas(gcf, fullfile(outputDir, ['c2_structural_phase_hist_' timestamp '.png']));
 
 % ========================
-% 图 2：risk bar 对比
+% 鍥?2锛歳isk bar 瀵规瘮
 % ========================
 figure('Name', 'c2 structural risk comparison', 'Color', 'w');
 bar([R_struct, R_phase, align_ratio]);

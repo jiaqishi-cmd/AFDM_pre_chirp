@@ -14,4 +14,8 @@ function setup_paths(rootDir)
     addpath(fullfile(rootDir, 'pre_chirp'));
     addpath(fullfile(rootDir, 'pre_chirp', 'profiles'));
     addpath(fullfile(rootDir, 'pre_chirp', 'utilities'));
+    experimentsDir = fullfile(rootDir, 'experiments');
+    if exist(experimentsDir, 'dir')
+        addpath(genpath(experimentsDir));
+    end
 end

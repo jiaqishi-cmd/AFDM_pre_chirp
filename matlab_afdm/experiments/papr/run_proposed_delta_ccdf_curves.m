@@ -1,8 +1,6 @@
-function results = run_proposed_delta_ccdf_curves(numFrames, options)
-%RUN_PROPOSED_DELTA_CCDF_CURVES 比较 proposed 不同 delta/c2 下的 PAPR CCDF 曲线。
-%   该实验回归正常随机数据帧，不使用 Case A fixed channel。
-
-    rootDir = fileparts(mfilename('fullpath'));
+﻿function results = run_proposed_delta_ccdf_curves(numFrames, options)
+%RUN_PROPOSED_DELTA_CCDF_CURVES 姣旇緝 proposed 涓嶅悓 delta/c2 涓嬬殑 PAPR CCDF 鏇茬嚎銆?%   璇ュ疄楠屽洖褰掓甯搁殢鏈烘暟鎹抚锛屼笉浣跨敤 Case A fixed channel銆?
+    rootDir = find_afdm_root(fileparts(mfilename('fullpath')));
     addpath(rootDir);
     setup_paths(rootDir);
 

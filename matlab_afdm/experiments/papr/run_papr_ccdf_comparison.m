@@ -1,10 +1,8 @@
-function results = run_papr_ccdf_comparison(numFrames, options)
-%RUN_PAPR_CCDF_COMPARISON 只运行 PAPR CCDF 对比，不做 BER sweep。
-%   比较 baseline / GPS(paper_grouping) / proposed_grouping。
-%
+﻿function results = run_papr_ccdf_comparison(numFrames, options)
+%RUN_PAPR_CCDF_COMPARISON 鍙繍琛?PAPR CCDF 瀵规瘮锛屼笉鍋?BER sweep銆?%   姣旇緝 baseline / GPS(paper_grouping) / proposed_grouping銆?%
 %   results = run_papr_ccdf_comparison(1000)
 
-    rootDir = fileparts(mfilename('fullpath'));
+    rootDir = find_afdm_root(fileparts(mfilename('fullpath')));
     addpath(rootDir);
     setup_paths(rootDir);
 
@@ -21,8 +19,7 @@ function results = run_papr_ccdf_comparison(numFrames, options)
     schemeLabels = get_option(options, 'scheme_labels', {'Baseline', 'GPS', 'Proposed'});
 
     baseConfig = afdm_config();
-    baseConfig.channel.add_noise = false; %#ok<NASGU> PAPR 只看发射端，信道无关。
-    numSchemes = numel(schemes);
+    baseConfig.channel.add_noise = false; %#ok<NASGU> PAPR 鍙湅鍙戝皠绔紝淇￠亾鏃犲叧銆?    numSchemes = numel(schemes);
 
     paprSamples = zeros(numFrames, numSchemes);
     selectedPatterns = cell(numFrames, numSchemes);

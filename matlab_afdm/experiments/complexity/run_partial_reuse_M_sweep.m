@@ -1,13 +1,12 @@
-% RUN_PARTIAL_REUSE_M_SWEEP
-% 验证不同 AFDM block size M 下，partial waveform reuse 相比 full recompute
-% 的 runtime 加速趋势。该脚本不修改已有主仿真脚本。
-
-rootDir = fileparts(mfilename('fullpath'));
+﻿% RUN_PARTIAL_REUSE_M_SWEEP
+% 楠岃瘉涓嶅悓 AFDM block size M 涓嬶紝partial waveform reuse 鐩告瘮 full recompute
+% 鐨?runtime 鍔犻€熻秼鍔裤€傝鑴氭湰涓嶄慨鏀瑰凡鏈変富浠跨湡鑴氭湰銆?
+rootDir = find_afdm_root(fileparts(mfilename('fullpath')));
 addpath(rootDir);
 setup_paths(rootDir);
 
 % ========================
-% 参数集中设置
+% 鍙傛暟闆嗕腑璁剧疆
 % ========================
 rng(1, 'twister');
 if ~exist('M_list', 'var'), M_list = [64 128 256]; end
@@ -56,13 +55,11 @@ for mIdx = 1:numM
     candidate_offsets = linspace(-delta, delta, W);
     group_index = repelem((1:V).', M / V);
 
-    % Warm-up，避免第一次函数调用影响计时。
-    warmSymbols = 1 - 2 * randi([0, 1], M, 1);
+    % Warm-up锛岄伩鍏嶇涓€娆″嚱鏁拌皟鐢ㄥ奖鍝嶈鏃躲€?    warmSymbols = 1 - 2 * randi([0, 1], M, 1);
     full_search_beam(warmSymbols, base_c2, candidate_offsets, group_index, search_os, final_os, beam_width, topK);
     reuse_search_beam(warmSymbols, base_c2, candidate_offsets, group_index, search_os, final_os, beam_width, topK);
 
-    % partial waveform 自检：任意 pattern 下 partial 合成应等于 direct waveform。
-    relErr = zeros(selfCheckTrials, 1);
+    % partial waveform 鑷锛氫换鎰?pattern 涓?partial 鍚堟垚搴旂瓑浜?direct waveform銆?    relErr = zeros(selfCheckTrials, 1);
     x = 1 - 2 * randi([0, 1], M, 1);
     sPart = precompute_partial_waveforms(x, base_c2, candidate_offsets, group_index, final_os);
     for trialIdx = 1:selfCheckTrials
@@ -138,7 +135,7 @@ for mIdx = 1:numM
 end
 
 % ========================
-% 绘图
+% 缁樺浘
 % ========================
 fig1 = figure('Color', 'w');
 plot(M_list, 1e3 * avg_runtime_full, '-o', 'LineWidth', 1.8); hold on;

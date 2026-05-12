@@ -1,13 +1,11 @@
-% RUN_PARTIAL_REUSE_TOPK_SWEEP
-% 研究 partial waveform reuse 下 topK/beam 宽度变化带来的 PAPR 与复杂度折中。
-% 最终 reported PAPR 均使用 final_os=4 重新计算。
-
-rootDir = fileparts(mfilename('fullpath'));
+﻿% RUN_PARTIAL_REUSE_TOPK_SWEEP
+% 鐮旂┒ partial waveform reuse 涓?topK/beam 瀹藉害鍙樺寲甯︽潵鐨?PAPR 涓庡鏉傚害鎶樹腑銆?% 鏈€缁?reported PAPR 鍧囦娇鐢?final_os=4 閲嶆柊璁＄畻銆?
+rootDir = find_afdm_root(fileparts(mfilename('fullpath')));
 addpath(rootDir);
 setup_paths(rootDir);
 
 % ========================
-% 参数集中设置
+% 鍙傛暟闆嗕腑璁剧疆
 % ========================
 rng(1, 'twister');
 if ~exist('M', 'var'), M = 64; end
@@ -50,8 +48,7 @@ group_index = repelem((1:V).', M / V);
 fprintf('========== Partial reuse topK sweep ==========\n');
 fprintf('M=%d V=%d W=%d searchOS=%d finalOS=%d frames=%d\n', M, V, W, search_os, final_os, numFrames);
 
-% Warm-up，避免第一次函数调用影响计时。
-warmDelta = delta_ratio_list(1) * base_c2;
+% Warm-up锛岄伩鍏嶇涓€娆″嚱鏁拌皟鐢ㄥ奖鍝嶈鏃躲€?warmDelta = delta_ratio_list(1) * base_c2;
 warmOffsets = linspace(-warmDelta, warmDelta, W);
 warmSymbols = 1 - 2 * randi([0, 1], M, 1);
 reuse_search_beam(warmSymbols, base_c2, warmOffsets, group_index, search_os, final_os, topK_list(1), topK_list(1));
@@ -113,22 +110,20 @@ for deltaIdx = 1:numDelta
 end
 
 % ========================
-% Summary 推荐 topK
+% Summary 鎺ㄨ崘 topK
 % ========================
 for deltaIdx = 1:numDelta
     delta_ratio = delta_ratio_list(deltaIdx);
     [bestPapr, bestIdx] = min(papr_at_1e3(deltaIdx, :));
     recTopK = topK_list(bestIdx);
-    % 由于有限帧数下 CCDF=1e-3 近似高分位/最大值，相邻 topK 可能有抖动。
-    % 这里用“进入 best+0.1 dB 范围的最小 topK”作为饱和推荐，更稳健。
-    nearBestIdx = find(papr_at_1e3(deltaIdx, :) <= bestPapr + 0.1, 1, 'first');
+    % 鐢变簬鏈夐檺甯ф暟涓?CCDF=1e-3 杩戜技楂樺垎浣?鏈€澶у€硷紝鐩搁偦 topK 鍙兘鏈夋姈鍔ㄣ€?    % 杩欓噷鐢ㄢ€滆繘鍏?best+0.1 dB 鑼冨洿鐨勬渶灏?topK鈥濅綔涓洪ケ鍜屾帹鑽愶紝鏇寸ǔ鍋ャ€?    nearBestIdx = find(papr_at_1e3(deltaIdx, :) <= bestPapr + 0.1, 1, 'first');
     satTopK = topK_list(nearBestIdx);
     fprintf('delta/c2=%.3f: best topK=%d (PAPR@1e-3=%.3f dB), saturation topK~%d\n', ...
         delta_ratio, recTopK, bestPapr, satTopK);
 end
 
 % ========================
-% 绘图
+% 缁樺浘
 % ========================
 fig1 = figure('Color', 'w');
 plot_by_delta(topK_list, papr_at_1e3, delta_ratio_list);

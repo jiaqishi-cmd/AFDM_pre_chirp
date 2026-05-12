@@ -1,19 +1,17 @@
-% MAIN_GPS_UNIQUE_RANK_LOSS_SEARCH
-% 强化搜索：寻找 GPS 的 Phi(delta) 独有退秩/近退秩 case。
-% 注意：本脚本不使用 total H_eff 的 rank 作为依据，只计算
-% Phi(delta)=[H1*delta,H2*delta]，其中 H1/H2 是单位路径单径矩阵。
-
-rootDir = fileparts(mfilename('fullpath'));
+﻿% MAIN_GPS_UNIQUE_RANK_LOSS_SEARCH
+% 寮哄寲鎼滅储锛氬鎵?GPS 鐨?Phi(delta) 鐙湁閫€绉?杩戦€€绉?case銆?% 娉ㄦ剰锛氭湰鑴氭湰涓嶄娇鐢?total H_eff 鐨?rank 浣滀负渚濇嵁锛屽彧璁＄畻
+% Phi(delta)=[H1*delta,H2*delta]锛屽叾涓?H1/H2 鏄崟浣嶈矾寰勫崟寰勭煩闃点€?
+rootDir = find_afdm_root(fileparts(mfilename('fullpath')));
 addpath(rootDir);
 setup_paths(rootDir);
 
 cfgSearch.N_list = [16, 32, 64];
 cfgSearch.V_list = [2, 4, 8];
 cfgSearch.alpha_max_list = [1, 2, 3];
-cfgSearch.max_exhaustive_bpsk = 4096;   % 全 2^16 可放开，但默认限量避免爆炸
+cfgSearch.max_exhaustive_bpsk = 4096;   % 鍏?2^16 鍙斁寮€锛屼絾榛樿闄愰噺閬垮厤鐖嗙偢
 cfgSearch.num_random_bpsk = 2000;
 cfgSearch.num_random_qpsk = 2000;
-cfgSearch.max_phi_rows = 200000;        % 只对 key-equation 强候选做 Phi 精算
+cfgSearch.max_phi_rows = 200000;        % 鍙 key-equation 寮哄€欓€夊仛 Phi 绮剧畻
 cfgSearch.seed = 20260427;
 
 fprintf('========== GPS unique Phi rank-loss search ==========\n');

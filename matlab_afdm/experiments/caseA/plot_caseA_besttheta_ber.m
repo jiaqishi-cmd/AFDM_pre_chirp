@@ -1,6 +1,5 @@
-function plot_caseA_besttheta_ber(ber_results, theta, outputDir)
-%PLOT_CASEA_BESTTHETA_BER 汇总绘制 best theta 的 BPSK/QPSK BER。
-
+﻿function plot_caseA_besttheta_ber(ber_results, theta, outputDir)
+%PLOT_CASEA_BESTTHETA_BER 姹囨€荤粯鍒?best theta 鐨?BPSK/QPSK BER銆?
     if nargin < 3 || isempty(outputDir)
         outputDir = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'results');
     end

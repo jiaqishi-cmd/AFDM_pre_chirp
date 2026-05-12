@@ -1,30 +1,24 @@
-% RUN_CASEA_FIXED_BER_DEEP
-% 对 Case A + theta=pi 的 fixed-channel BER 做高 bit 数验证。
-% 目标：把 BER 作为主证据，确认 GPS 的 error floor 与 proposed/baseline 的差异。
-
-rootDir = fileparts(mfilename('fullpath'));
+﻿% RUN_CASEA_FIXED_BER_DEEP
+% 瀵?Case A + theta=pi 鐨?fixed-channel BER 鍋氶珮 bit 鏁伴獙璇併€?% 鐩爣锛氭妸 BER 浣滀负涓昏瘉鎹紝纭 GPS 鐨?error floor 涓?proposed/baseline 鐨勫樊寮傘€?
+rootDir = find_afdm_root(fileparts(mfilename('fullpath')));
 addpath(rootDir);
 setup_paths(rootDir);
 
 % ========================
-% 参数集中设置
+% 鍙傛暟闆嗕腑璁剧疆
 % ========================
 rng(1, 'twister');
 SNR_dB = 0:2:34;
-maxBitsPerSNR = 1e6;        % 每个 SNR、每个 scheme 的最大 bit 数
-minErrTarget = 300;         % 误码达到该值后可提前停止
-theta = pi;                 % Case A worst fixed phase
-delta_ratio = 0.2;          % delta sweep 中较稳的折中点
-M_mod = 2;                  % BPSK
+maxBitsPerSNR = 1e6;        % 姣忎釜 SNR銆佹瘡涓?scheme 鐨勬渶澶?bit 鏁?minErrTarget = 300;         % 璇爜杈惧埌璇ュ€煎悗鍙彁鍓嶅仠姝?theta = pi;                 % Case A worst fixed phase
+delta_ratio = 0.2;          % delta sweep 涓緝绋崇殑鎶樹腑鐐?M_mod = 2;                  % BPSK
 
 N = 64;
 V = 4;
 c1 = 7 / (2 * N);
 c2_base = sqrt(2) / (10 * N);
 delta = delta_ratio * c2_base;
-gps_pattern = [2 2 1 1];    % Case A 中 GPS 的危险 pattern
-prop_pattern = [2 2 1 1];   % proposed 使用同 group pattern 作固定对照
-
+gps_pattern = [2 2 1 1];    % Case A 涓?GPS 鐨勫嵄闄?pattern
+prop_pattern = [2 2 1 1];   % proposed 浣跨敤鍚?group pattern 浣滃浐瀹氬鐓?
 [c2_gps, ~] = build_c2m_gps_pattern(N, V, gps_pattern);
 [c2_prop, ~] = build_c2m_proposed_pattern(N, V, prop_pattern, c2_base, delta);
 

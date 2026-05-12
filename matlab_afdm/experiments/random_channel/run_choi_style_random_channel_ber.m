@@ -1,23 +1,15 @@
-% RUN_CHOI_STYLE_RANDOM_CHANNEL_BER
-% 参考 Choi 论文中常用的 M=64、Lcpp=8 AFDM 设置，采用随机 P-path
-% doubly selective Rayleigh channel，比较 baseline/GPS/proposed 的平均 BER。
-%
-% 本实验假设接收端 perfect CSI，用于隔离不同 pre-chirp / c2 pattern
-% 设计本身的影响。发射端不使用 CSI，只根据当前数据做 PAPR selection。
-% GPS/proposed 的 selected pattern 暂时假设通过理想 SI 告知接收端，SI 设计不是本实验重点。
-%
-% 本实验与 Case A fixed-channel stress test 互补：
-% - random channel BER 说明普通随机信道下的平均性能；
-% - fixed Case A BER 说明 GPS 的 worst-case vulnerability。
-% 如果 GPS 在随机信道下不出现 BER floor，并不否定 fixed stress test 的意义。
-
-rootDir = fileparts(mfilename('fullpath'));
+﻿% RUN_CHOI_STYLE_RANDOM_CHANNEL_BER
+% 鍙傝€?Choi 璁烘枃涓父鐢ㄧ殑 M=64銆丩cpp=8 AFDM 璁剧疆锛岄噰鐢ㄩ殢鏈?P-path
+% doubly selective Rayleigh channel锛屾瘮杈?baseline/GPS/proposed 鐨勫钩鍧?BER銆?%
+% 鏈疄楠屽亣璁炬帴鏀剁 perfect CSI锛岀敤浜庨殧绂讳笉鍚?pre-chirp / c2 pattern
+% 璁捐鏈韩鐨勫奖鍝嶃€傚彂灏勭涓嶄娇鐢?CSI锛屽彧鏍规嵁褰撳墠鏁版嵁鍋?PAPR selection銆?% GPS/proposed 鐨?selected pattern 鏆傛椂鍋囪閫氳繃鐞嗘兂 SI 鍛婄煡鎺ユ敹绔紝SI 璁捐涓嶆槸鏈疄楠岄噸鐐广€?%
+% 鏈疄楠屼笌 Case A fixed-channel stress test 浜掕ˉ锛?% - random channel BER 璇存槑鏅€氶殢鏈轰俊閬撲笅鐨勫钩鍧囨€ц兘锛?% - fixed Case A BER 璇存槑 GPS 鐨?worst-case vulnerability銆?% 濡傛灉 GPS 鍦ㄩ殢鏈轰俊閬撲笅涓嶅嚭鐜?BER floor锛屽苟涓嶅惁瀹?fixed stress test 鐨勬剰涔夈€?
+rootDir = find_afdm_root(fileparts(mfilename('fullpath')));
 addpath(rootDir);
 setup_paths(rootDir);
 
 % ========================
-% 系统与仿真参数
-% ========================
+% 绯荤粺涓庝豢鐪熷弬鏁?% ========================
 rng(1, 'twister');
 if ~exist('M', 'var'), M = 64; end
 if ~exist('N', 'var'), N = M; end
@@ -40,7 +32,7 @@ if ~exist('channel_profile', 'var'), channel_profile = 'medium'; end
 [numPaths, lmax, alpha_max] = channel_profile_params(channel_profile, Lcpp);
 
 % ========================
-% 构造基础配置
+% 鏋勯€犲熀纭€閰嶇疆
 % ========================
 baseCfg = afdm_config();
 baseCfg.waveform.NumSubcarriers = N;
@@ -157,8 +149,7 @@ for snrIdx = 1:numSnr
 end
 
 % ========================
-% 保存与绘图
-% ========================
+% 淇濆瓨涓庣粯鍥?% ========================
 outputDir = fullfile(fileparts(rootDir), 'results');
 if ~exist(outputDir, 'dir')
     mkdir(outputDir);

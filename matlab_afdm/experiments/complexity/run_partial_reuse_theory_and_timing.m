@@ -1,19 +1,16 @@
-% RUN_PARTIAL_REUSE_THEORY_AND_TIMING
-% 在实现大规模 partial waveform reuse 仿真前，先做理论复杂度计数和小规模 runtime 验证。
-%
-% proposed 是 group-wise c2 perturbation，每个 group 从 {c2-delta,c2,c2+delta}
-% 中选择。partial reuse 利用：
-%   s(pattern) = sum_v s_part{v, pattern(v)}
-% 搜索时：
+﻿% RUN_PARTIAL_REUSE_THEORY_AND_TIMING
+% 鍦ㄥ疄鐜板ぇ瑙勬ā partial waveform reuse 浠跨湡鍓嶏紝鍏堝仛鐞嗚澶嶆潅搴﹁鏁板拰灏忚妯?runtime 楠岃瘉銆?%
+% proposed 鏄?group-wise c2 perturbation锛屾瘡涓?group 浠?{c2-delta,c2,c2+delta}
+% 涓€夋嫨銆俻artial reuse 鍒╃敤锛?%   s(pattern) = sum_v s_part{v, pattern(v)}
+% 鎼滅储鏃讹細
 %   s_new = s_cur - s_part{v, old_w} + s_part{v, new_w}
-% 避免每次候选评估都完整生成 IDAFT/IFFT 波形。
-
-rootDir = fileparts(mfilename('fullpath'));
+% 閬垮厤姣忔鍊欓€夎瘎浼伴兘瀹屾暣鐢熸垚 IDAFT/IFFT 娉㈠舰銆?
+rootDir = find_afdm_root(fileparts(mfilename('fullpath')));
 addpath(rootDir);
 setup_paths(rootDir);
 
 % ========================
-% 参数集中设置
+% 鍙傛暟闆嗕腑璁剧疆
 % ========================
 rng(1, 'twister');
 if ~exist('M', 'var'), M = 64; end
@@ -51,15 +48,14 @@ fprintf('M=%d V=%d W=%d beam=%d topK=%d searchOS=%d finalOS=%d frames=%d\n', ...
     M, V, W, beam_width, topK, search_os, final_os, numFrames);
 
 % ========================
-% Warm-up，避免首次函数调用影响计时
-% ========================
+% Warm-up锛岄伩鍏嶉娆″嚱鏁拌皟鐢ㄥ奖鍝嶈鏃?% ========================
 warmBits = randi([0, 1], M, 1);
 warmSymbols = 1 - 2 * warmBits;
 full_search_beam(warmSymbols, base_c2, candidate_offsets, group_index, search_os, final_os, beam_width, topK);
 reuse_search_beam(warmSymbols, base_c2, candidate_offsets, group_index, search_os, final_os, beam_width, topK);
 
 % ========================
-% partial waveform 一致性自检
+% partial waveform 涓€鑷存€ц嚜妫€
 % ========================
 rel_err_list = zeros(20, 1);
 x = 1 - 2 * randi([0, 1], M, 1);
@@ -73,7 +69,7 @@ end
 fprintf('Partial waveform self-check max rel err = %.3e\n', max(rel_err_list));
 
 % ========================
-% runtime 对比
+% runtime 瀵规瘮
 % ========================
 papr_full = zeros(numFrames, 1);
 papr_reuse = zeros(numFrames, 1);
@@ -110,11 +106,9 @@ for frameIdx = 1:numFrames
 end
 
 % ========================
-% 理论复杂度计数
-% ========================
+% 鐞嗚澶嶆潅搴﹁鏁?% ========================
 N_eval_full = I * V * W;
-N_eval_search = mean(eval_count_full - topK); % 去掉 final refine 的 topK 次精评
-C_full_os4 = N_eval_full * (final_os * M) * log2(final_os * M);
+N_eval_search = mean(eval_count_full - topK); % 鍘绘帀 final refine 鐨?topK 娆＄簿璇?C_full_os4 = N_eval_full * (final_os * M) * log2(final_os * M);
 C_full_os4 = N_eval_full * (final_os * M) * log2(final_os * M);
 C_2stage_full = N_eval_search * (search_os * M) * log2(search_os * M) + ...
     topK * (final_os * M) * log2(final_os * M);

@@ -1,6 +1,5 @@
-function plot_search_summary(results_table, outputDir, timestamp)
-%PLOT_SEARCH_SUMMARY 绘制 GPS 独有近退秩搜索摘要图。
-
+﻿function plot_search_summary(results_table, outputDir, timestamp)
+%PLOT_SEARCH_SUMMARY 缁樺埗 GPS 鐙湁杩戦€€绉╂悳绱㈡憳瑕佸浘銆?
     if nargin < 2 || isempty(outputDir)
         outputDir = pwd;
     end

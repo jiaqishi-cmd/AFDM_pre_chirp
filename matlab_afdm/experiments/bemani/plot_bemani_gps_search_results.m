@@ -1,4 +1,4 @@
-function plot_bemani_gps_search_results(results_table, outputDir, timestamp, phi_plot)
+﻿function plot_bemani_gps_search_results(results_table, outputDir, timestamp, phi_plot)
 %PLOT_BEMANI_GPS_SEARCH_RESULTS Generate summary plots for key-equation search.
 
     if nargin < 2 || isempty(outputDir)

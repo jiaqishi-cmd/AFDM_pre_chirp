@@ -1,7 +1,7 @@
-% MAIN_BEMANI_GPS_KEY_EQUATION_SEARCH
+﻿% MAIN_BEMANI_GPS_KEY_EQUATION_SEARCH
 % Search Bemani two-path key-equation matches for Yuan GPS-AFDM c2,m.
 
-rootDir = fileparts(mfilename('fullpath'));
+rootDir = find_afdm_root(fileparts(mfilename('fullpath')));
 addpath(rootDir);
 setup_paths(rootDir);
 

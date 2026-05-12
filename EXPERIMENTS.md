@@ -10,10 +10,10 @@
 
 主脚本：
 
-- `matlab_afdm/main_focused_bemani_gps_search.m`
-- `matlab_afdm/run_caseA_fixed_ber_deep.m`
-- `matlab_afdm/run_caseA_theta_scan.m`
-- `matlab_afdm/plot_caseA_theta_scan_enhanced.m`
+- `matlab_afdm/experiments/bemani/main_focused_bemani_gps_search.m`
+- `matlab_afdm/experiments/caseA/run_caseA_fixed_ber_deep.m`
+- `matlab_afdm/experiments/caseA/run_caseA_theta_scan.m`
+- `matlab_afdm/experiments/caseA/plot_caseA_theta_scan_enhanced.m`
 
 核心结果：
 
@@ -44,7 +44,7 @@
 
 主脚本：
 
-- `matlab_afdm/run_choi_style_random_channel_ber.m`
+- `matlab_afdm/experiments/random_channel/run_choi_style_random_channel_ber.m`
 
 核心结果：
 
@@ -64,10 +64,10 @@
 
 主脚本：
 
-- `matlab_afdm/run_papr_ccdf_comparison.m`
-- `matlab_afdm/run_delta_sweep_proposed.m`
-- `matlab_afdm/run_proposed_delta_ccdf_curves.m`
-- `matlab_afdm/run_proposed_delta_ber_curves.m`
+- `matlab_afdm/experiments/papr/run_papr_ccdf_comparison.m`
+- `matlab_afdm/experiments/papr/run_delta_sweep_proposed.m`
+- `matlab_afdm/experiments/papr/run_proposed_delta_ccdf_curves.m`
+- `matlab_afdm/experiments/papr/run_proposed_delta_ber_curves.m`
 
 核心结果：
 
@@ -95,7 +95,7 @@
 - `matlab_afdm/calc_c2_structural_metrics.m`
 - `matlab_afdm/calc_phase_structural_metrics.m`
 - `matlab_afdm/calc_c2_candidate_correlation.m`
-- `matlab_afdm/test_c2_structural_metrics.m`
+- `matlab_afdm/experiments/structural/test_c2_structural_metrics.m`
 
 核心结果：
 
@@ -116,10 +116,10 @@
 
 主脚本：
 
-- `matlab_afdm/run_papr_search_complexity_study.m`
-- `matlab_afdm/run_partial_reuse_theory_and_timing.m`
-- `matlab_afdm/run_partial_reuse_M_sweep.m`
-- `matlab_afdm/run_partial_reuse_topK_sweep.m`
+- `matlab_afdm/experiments/complexity/run_papr_search_complexity_study.m`
+- `matlab_afdm/experiments/complexity/run_partial_reuse_theory_and_timing.m`
+- `matlab_afdm/experiments/complexity/run_partial_reuse_M_sweep.m`
+- `matlab_afdm/experiments/complexity/run_partial_reuse_topK_sweep.m`
 
 核心结果：
 
@@ -161,12 +161,12 @@ topK = 8;   % 工程折中
 
 以下脚本主要用于探索、调试或早期搜索；保留但不优先放进论文主线：
 
-- `matlab_afdm/main_bemani_gps_key_equation_search.m`
-- `matlab_afdm/main_gps_unique_rank_loss_search.m`
-- `matlab_afdm/main_gps_bestcase_ber_snr.m`
-- `matlab_afdm/main_caseA_phase_scan_dmin.m`
-- `matlab_afdm/main_caseA_besttheta_ber_snr.m`
-- `matlab_afdm/main_focused_bestcase_ber_snr.m`
+- `matlab_afdm/experiments/bemani/main_bemani_gps_key_equation_search.m`
+- `matlab_afdm/experiments/bemani/main_gps_unique_rank_loss_search.m`
+- `matlab_afdm/experiments/bemani/main_gps_bestcase_ber_snr.m`
+- `matlab_afdm/experiments/caseA/main_caseA_phase_scan_dmin.m`
+- `matlab_afdm/experiments/caseA/main_caseA_besttheta_ber_snr.m`
+- `matlab_afdm/experiments/bemani/main_focused_bestcase_ber_snr.m`
 - `matlab_afdm/run_c2_channel_diagnostics.m`
 - `matlab_afdm/run_c2_exposure_ber.m`
 - `matlab_afdm/run_bestcase_ber_snr.m`

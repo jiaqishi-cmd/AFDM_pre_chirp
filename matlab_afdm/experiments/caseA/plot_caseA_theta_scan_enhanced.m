@@ -1,15 +1,12 @@
-% PLOT_CASEA_THETA_SCAN_ENHANCED
-% Case A theta scan 的增强后处理绘图脚本。
-% 不改变原始仿真数据，只做绘图下限、log-domain 平滑和统计展示。
-
-rootDir = fileparts(mfilename('fullpath'));
+﻿% PLOT_CASEA_THETA_SCAN_ENHANCED
+% Case A theta scan 鐨勫寮哄悗澶勭悊缁樺浘鑴氭湰銆?% 涓嶆敼鍙樺師濮嬩豢鐪熸暟鎹紝鍙仛缁樺浘涓嬮檺銆乴og-domain 骞虫粦鍜岀粺璁″睍绀恒€?
+rootDir = find_afdm_root(fileparts(mfilename('fullpath')));
 addpath(rootDir);
 
 % ========================
-% 可调参数
+% 鍙皟鍙傛暟
 % ========================
-smooth_win = 7;          % log10(BER) 上的移动中值窗口
-default_ber_floor = 1e-5;
+smooth_win = 7;          % log10(BER) 涓婄殑绉诲姩涓€肩獥鍙?default_ber_floor = 1e-5;
 ber_th = 1e-3;
 ratio_th1 = 10;
 ratio_th2 = 100;
@@ -19,8 +16,7 @@ if ~exist(outputDir, 'dir')
     mkdir(outputDir);
 end
 
-% 如果工作区没有变量，则默认读取最近一次 theta scan 结果。
-if ~exist('theta_list', 'var') || ~exist('ber_base', 'var') || ...
+% 濡傛灉宸ヤ綔鍖烘病鏈夊彉閲忥紝鍒欓粯璁よ鍙栨渶杩戜竴娆?theta scan 缁撴灉銆?if ~exist('theta_list', 'var') || ~exist('ber_base', 'var') || ...
         ~exist('ber_gps', 'var') || ~exist('ber_prop', 'var')
     dataPath = fullfile(outputDir, 'results_caseA_theta_scan.mat');
     if ~exist(dataPath, 'file')
@@ -42,8 +38,7 @@ if ~exist('theta_list', 'var') || ~exist('ber_base', 'var') || ...
 end
 
 % ========================
-% 基本预处理
-% ========================
+% 鍩烘湰棰勫鐞?% ========================
 theta = theta_list(:);
 b0 = ber_base(:);
 b1 = ber_gps(:);
@@ -81,7 +76,7 @@ gps_high = b1 > ber_th;
 timestamp = datestr(now, 'yyyymmdd_HHMMSS');
 
 % ========================
-% 图 1：原始 BER + 平滑 BER
+% 鍥?1锛氬師濮?BER + 骞虫粦 BER
 % ========================
 figure('Name', 'Case A theta scan raw and smoothed BER', 'Color', 'w');
 semilogy(theta_pi, b0_plot, '.', 'Color', [0.65 0.78 1.00], 'MarkerSize', 7, 'HandleVisibility', 'off'); hold on;
@@ -105,7 +100,7 @@ text(0.02, 1.25 * ber_floor, 'Zero-error points clipped to plotting floor; smoot
 saveas(gcf, fullfile(outputDir, ['fig_caseA_theta_raw_smooth_' timestamp '.png']));
 
 % ========================
-% 图 2：相对 baseline 的 BER ratio
+% 鍥?2锛氱浉瀵?baseline 鐨?BER ratio
 % ========================
 figure('Name', 'Case A theta scan BER ratio', 'Color', 'w');
 semilogy(theta_pi, ratio_gps, '.', 'Color', [1.00 0.78 0.55], 'MarkerSize', 7, 'HandleVisibility', 'off'); hold on;
@@ -125,8 +120,7 @@ legend('Location', 'northwest');
 saveas(gcf, fullfile(outputDir, ['fig_caseA_theta_ratio_' timestamp '.png']));
 
 % ========================
-% 图 3：危险相位区域统计
-% ========================
+% 鍥?3锛氬嵄闄╃浉浣嶅尯鍩熺粺璁?% ========================
 max_ber_base = max(b0);
 max_ber_gps = max(b1);
 max_ber_prop = max(b2);

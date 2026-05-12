@@ -1,4 +1,4 @@
-function plot_bemani_case_summary(resultsSource, outputDir)
+﻿function plot_bemani_case_summary(resultsSource, outputDir)
 %PLOT_BEMANI_CASE_SUMMARY Plot unambiguous Case A-D summary figures.
 %   Each x-axis group is one named two-path case. For each case, the row
 %   with the largest GPS improvement_mean is selected from results_table.
