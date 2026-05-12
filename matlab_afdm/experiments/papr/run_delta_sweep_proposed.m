@@ -226,7 +226,7 @@ function metrics = compute_selected_structural_metrics(c2SelectedList, c2BaseVec
         'diagonal_perturb_dist', 0, 'R_dev', 0), 1, numel(sampleIdx));
     for idx = 1:numel(sampleIdx)
         c2Vec = c2SelectedList(:, sampleIdx(idx));
-        item = calc_c2_structural_metrics(c2Vec, cfg);
+        item = afdm.metrics.c2_structural(c2Vec, cfg);
         phi = exp(1i * 2 * pi .* c2Vec(:) .* (m.^2));
         diagonalDist = mean(abs(phi - phiBase));
         metrics(idx).R_struct = item.R_struct;

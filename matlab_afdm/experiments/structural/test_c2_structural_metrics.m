@@ -47,7 +47,7 @@ align_ratio = zeros(numel(c2_list), 1);
 R_struct = zeros(numel(c2_list), 1);
 
 for idx = 1:numel(c2_list)
-    metrics{idx} = calc_c2_structural_metrics(c2_list{idx}, cfg);
+    metrics{idx} = afdm.metrics.c2_structural(c2_list{idx}, cfg);
     phase_entropy(idx) = metrics{idx}.phase_entropy;
     R_phase(idx) = metrics{idx}.phase_degeneracy_risk;
     eff_bins(idx) = metrics{idx}.eff_phase_bins;
@@ -67,7 +67,7 @@ candidate_vecs = { ...
     (c2_base - delta) * ones(M, 1), ...
     c2_base * ones(M, 1), ...
     (c2_base + delta) * ones(M, 1)};
-corr_metrics = calc_c2_candidate_correlation(candidate_vecs, cfg); %#ok<NASGU>
+corr_metrics = afdm.metrics.c2_candidate_correlation(candidate_vecs, cfg); %#ok<NASGU>
 fprintf('Proposed candidate max rho offdiag = %.4f, min separation = %.4f\n', ...
     corr_metrics.max_rho_offdiag, corr_metrics.min_separation);
 
