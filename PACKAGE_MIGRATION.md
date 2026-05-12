@@ -78,20 +78,33 @@ Done:
   - `apply_pre_chirp_scheme`
   - `select_greedy_profile`
 
-## Recommended Next Steps
-
 ### Stage 3: search package
 
-Move PAPR search helpers into:
+Partially done:
 
-```text
-+afdm/+search/
-```
+- Added `matlab_afdm/+afdm/+search/`
+- Added:
+  - `afdm.search.greedy_group_papr_selection`
+  - `afdm.search.full_beam_search`
+  - `afdm.search.reuse_beam_search`
+  - `afdm.search.precompute_partial_waveforms`
+  - `afdm.search.combine_partial_waveform`
+  - `afdm.search.direct_full_waveform`
+  - `afdm.search.full_waveform`
+  - `afdm.search.ifft_oversampled`
+- Kept compatibility wrapper:
+  - `greedy_group_papr_selection`
+- Updated:
+  - `select_greedy_profile`
+  - `experiments/complexity/run_partial_reuse_theory_and_timing.m`
 
-Candidates:
+Remaining search cleanup:
 
-- `greedy_group_papr_selection`
-- partial waveform reuse helper routines currently embedded in complexity scripts
+- Update `run_partial_reuse_M_sweep.m`
+- Update `run_partial_reuse_topK_sweep.m`
+- Consider migrating `run_papr_search_complexity_study.m`
+
+## Recommended Next Steps
 
 ### Stage 4: tx/rx/channel packages
 
