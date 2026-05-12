@@ -10,6 +10,10 @@ function results = run_bestcase_ber_snr(best_case, options)
     snrValues = get_option(options, 'snr_values', 0:2:30);
     numFrames = get_option(options, 'num_frames', 500);
     rngSeed = get_option(options, 'seed', 20260427);
+    gainMode = lower(get_option(options, 'gain_mode', 'rayleigh'));
+    fixedTheta = get_option(options, 'fixed_theta', pi);
+    runLabel = get_option(options, 'label', 'gps_bestcase');
+    MMod = get_option(options, 'M_mod', 2);
 
     schemes = {'baseline', 'GPS', 'proposed'};
     N = best_case.N;
@@ -26,6 +30,10 @@ function results = run_bestcase_ber_snr(best_case, options)
     results.snr_values = snrValues;
     results.num_frames = numFrames;
     results.schemes = schemes;
+    results.gain_mode = gainMode;
+    results.fixed_theta = fixedTheta;
+    results.label = runLabel;
+    results.M_mod = MMod;
     results.ber = zeros(numel(snrValues), numel(schemes));
     results.error_bits = zeros(numel(snrValues), numel(schemes));
     results.total_bits = zeros(numel(snrValues), numel(schemes));
@@ -39,9 +47,9 @@ function results = run_bestcase_ber_snr(best_case, options)
             totalErr = 0;
             totalBits = 0;
             for frameIdx = 1:numFrames
-                cfg = build_frame_config(best_case, schemes{schemeIdx}, c2_base, c2_gps, c2_prop, c1, snrValues(snrIdx));
+                cfg = build_frame_config(best_case, schemes{schemeIdx}, c2_base, c2_gps, c2_prop, c1, snrValues(snrIdx), MMod);
                 rng(rngSeed + 100000 * snrIdx + 1000 * schemeIdx + frameIdx, 'twister');
-                cfg.channel.chan_coef = (randn(1, 2) + 1i * randn(1, 2)) / sqrt(4);
+                cfg.channel.chan_coef = build_path_gains(gainMode, fixedTheta);
                 frame = simulate_frame(cfg, rngSeed + 1000000 * snrIdx + 10000 * schemeIdx + frameIdx);
                 totalErr = totalErr + frame.err_bits;
                 totalBits = totalBits + frame.total_bits;
@@ -58,12 +66,12 @@ function results = run_bestcase_ber_snr(best_case, options)
     plot_ber_results(results);
 end
 
-function cfg = build_frame_config(best_case, scheme, c2_base, c2_gps, c2_prop, c1, snrDb)
+function cfg = build_frame_config(best_case, scheme, c2_base, c2_gps, c2_prop, c1, snrDb, MMod)
     cfg = afdm_config();
     cfg.waveform.NumSubcarriers = best_case.N;
     cfg.waveform.CPPLength = max(best_case.l2, 1);
     cfg.waveform.c1 = c1;
-    cfg.modulation.M_mod = 2;
+    cfg.modulation.M_mod = MMod;
     cfg.modulation.modType = 'psk';
     cfg.channel.multipath = true;
     cfg.channel.add_noise = true;
@@ -87,6 +95,18 @@ function cfg = build_frame_config(best_case, scheme, c2_base, c2_gps, c2_prop, c
     cfg.pre_chirp.profile.scheme = 'baseline';
     cfg.pre_chirp.profile.c2 = c2;
     cfg.waveform.c2 = c2;
+end
+
+function gains = build_path_gains(gainMode, fixedTheta)
+    % Rayleigh 用于平均 BER；fixed 用于放大某个两径相消相位下的 worst-case 倾向。
+    switch gainMode
+        case 'rayleigh'
+            gains = (randn(1, 2) + 1i * randn(1, 2)) / sqrt(4);
+        case 'fixed'
+            gains = [1, exp(1i * fixedTheta)] / sqrt(2);
+        otherwise
+            error('Unknown gain_mode: %s', gainMode);
+    end
 end
 
 function div = estimate_diversity_order(snrDb, ber)
@@ -114,10 +134,10 @@ function plot_ber_results(results)
     grid on;
     xlabel('SNR (dB)');
     ylabel('BER');
-    title('BER-SNR on GPS near-rank-loss best case');
+    title(sprintf('BER-SNR on %s (%s gain)', strrep(results.label, '_', '\_'), results.gain_mode));
     legend(results.schemes, 'Location', 'southwest');
-    saveas(gcf, fullfile(outputDir, ['gps_bestcase_ber_snr_' timestamp '.png']));
-    save(fullfile(outputDir, 'gps_bestcase_ber_snr.mat'), 'results');
+    saveas(gcf, fullfile(outputDir, [results.label '_ber_snr_' timestamp '.png']));
+    save(fullfile(outputDir, [results.label '_ber_snr.mat']), 'results');
     fprintf('Diversity estimates: baseline %.3g | GPS %.3g | proposed %.3g\n', ...
         results.diversity_order(1), results.diversity_order(2), results.diversity_order(3));
 end
@@ -126,6 +146,23 @@ function pattern = parse_pattern(text)
     if isnumeric(text)
         pattern = text;
         return;
+    end
+    switch char(text)
+        case 'pattern_alt1'
+            pattern = [1 2 1 2];
+            return;
+        case 'pattern_alt2'
+            pattern = [2 1 2 1];
+            return;
+        case 'pattern_half1'
+            pattern = [1 1 2 2];
+            return;
+        case 'pattern_half2'
+            pattern = [2 2 1 1];
+            return;
+        case 'pattern_all1'
+            pattern = [1 1 1 1];
+            return;
     end
     nums = regexp(char(text), '\d+', 'match');
     pattern = str2double(nums);
