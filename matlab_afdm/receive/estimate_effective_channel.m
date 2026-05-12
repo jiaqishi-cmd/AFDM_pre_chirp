@@ -10,12 +10,12 @@ function H_eff = estimate_effective_channel(N, c1, c2, gains, delays, doppler_fr
 
     P = length(gains);
     if length(delays) ~= P || length(doppler_freq) ~= P
-        error('增益、延迟和多普勒向量的长度必须一致');
+        error('gains, delays, and doppler_freq must have the same length.');
     end
     if isscalar(c2)
         c2 = repmat(c2, N, 1);
     elseif numel(c2) ~= N
-        error('c2 必须是标量或长度为 N 的向量');
+        error('c2 must be scalar or a vector of length N.');
     else
         c2 = c2(:);
     end

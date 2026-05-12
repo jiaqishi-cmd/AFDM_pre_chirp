@@ -1,10 +1,12 @@
 # MATLAB Package Migration Plan
 
-目标是逐步从全局 `addpath` 调用迁移到 MATLAB package 命名空间调用，减少函数名冲突和路径污染。
+Goal: gradually move stable code from global path-based functions to MATLAB
+package namespaces. This reduces name collisions and lets future code expose
+only the `matlab_afdm/` root instead of every subfolder.
 
 ## Long-Term Target
 
-最终形态建议：
+Recommended final structure:
 
 ```text
 matlab_afdm/
@@ -16,72 +18,84 @@ matlab_afdm/
     +chirp/
     +metrics/
     +search/
-    +experiments/
   experiments/
 ```
 
-新代码优先使用 package 调用，例如：
+New code should prefer calls like:
 
 ```matlab
 metrics = afdm.metrics.c2_structural(c2Vec, cfg);
-corr = afdm.metrics.c2_candidate_correlation(candidateVecs, cfg);
+profile = afdm.chirp.build_profile('proposed_grouping', N, params);
 ```
+
+## MATLAB Constraint
+
+MATLAB packages still require the package parent directory to be visible.
+
+Practical meaning:
+
+- If current folder is `matlab_afdm/`, `afdm.*` calls work directly.
+- If running from elsewhere, only `matlab_afdm/` needs to be on the path.
+- We no longer need to expose every implementation subfolder once migration is complete.
 
 ## Current Migration Status
 
-第一阶段已完成：
+### Stage 1: metrics package
 
-- 新增 `matlab_afdm/+afdm/+metrics/`
-- 新增 package functions:
+Done:
+
+- Added `matlab_afdm/+afdm/+metrics/`
+- Added:
   - `afdm.metrics.c2_structural`
   - `afdm.metrics.phase_structural`
   - `afdm.metrics.c2_candidate_correlation`
-- 原有函数保留为 compatibility wrappers:
+- Kept compatibility wrappers:
   - `calc_c2_structural_metrics`
   - `calc_phase_structural_metrics`
   - `calc_c2_candidate_correlation`
-- 已将结构风险实验和 delta sweep 中的 metrics 调用改为 `afdm.metrics.*`
+- Updated selected experiments to call `afdm.metrics.*`.
 
-## Important MATLAB Constraint
+### Stage 2: chirp package
 
-MATLAB package 并不是完全不需要路径。它要求 package 父目录在 MATLAB 当前目录或 path 中。
+Done:
 
-也就是说：
-
-- 若当前目录是 `matlab_afdm/`，可以直接调用 `afdm.metrics.*`
-- 若从别处运行，仍需要：
-  - 打开 MATLAB Project，或
-  - 将 `matlab_afdm/` 加入 path，或
-  - 从 `matlab_afdm/` 目录启动实验
-
-Package 的收益不是“绝对不需要任何 path”，而是：
-
-- 不需要把每个子目录都加入 path
-- 函数命名空间清楚
-- 后续可以只暴露 `matlab_afdm/` 一个根目录
+- Added `matlab_afdm/+afdm/+chirp/`
+- Added:
+  - `afdm.chirp.build_profile`
+  - `afdm.chirp.baseline_profile`
+  - `afdm.chirp.gps_profile`
+  - `afdm.chirp.proposed_profile`
+  - `afdm.chirp.build_gps_pattern`
+  - `afdm.chirp.build_proposed_pattern`
+  - `afdm.chirp.group_index`
+  - `afdm.chirp.gps_candidate_set`
+  - `afdm.chirp.get_param`
+- Kept compatibility wrappers:
+  - `build_pre_chirp_profile`
+  - `build_c2m_gps_pattern`
+  - `build_c2m_proposed_pattern`
+- Updated core pre-chirp entry points:
+  - `apply_pre_chirp_scheme`
+  - `select_greedy_profile`
 
 ## Recommended Next Steps
 
-### Stage 2: chirp/search package
+### Stage 3: search package
 
-迁移稳定的 pre-chirp 和 PAPR search helper：
+Move PAPR search helpers into:
 
 ```text
-+afdm/+chirp/
 +afdm/+search/
 ```
 
-候选函数：
+Candidates:
 
-- `build_c2m_gps_pattern`
-- `build_c2m_proposed_pattern`
-- `build_group_index`
-- `gps_candidate_set`
 - `greedy_group_papr_selection`
+- partial waveform reuse helper routines currently embedded in complexity scripts
 
-### Stage 3: tx/rx/channel package
+### Stage 4: tx/rx/channel packages
 
-迁移核心链路：
+Move the core link functions into:
 
 ```text
 +afdm/+tx/
@@ -89,33 +103,25 @@ Package 的收益不是“绝对不需要任何 path”，而是：
 +afdm/+channel/
 ```
 
-候选函数：
+Candidates:
 
-- `idaft_mod`
-- `compute_papr`
-- `afdm_tx_engine`
-- `daft_demod`
-- `mmse_equalize`
-- `estimate_effective_channel`
-- `multipath_channel`
-- `add_awgn`
+- `idaft_mod`, `compute_papr`, `afdm_tx_engine`
+- `daft_demod`, `mmse_equalize`, `estimate_effective_channel`
+- `multipath_channel`, `add_awgn`
 
-这一步需要系统性改调用名，风险较高，应在单独 commit 中做，并配套 smoke tests。
+This stage is riskier because many functions call each other. Do it in a
+separate commit with smoke tests.
 
-### Stage 4: scripts call package only
+### Stage 5: reduce setup_paths
 
-实验脚本只保留：
-
-```matlab
-rootDir = find_afdm_root(...);
-cd(rootDir);
-```
-
-然后调用 package 函数，不再依赖 `genpath` 暴露所有子目录。
+Once all stable functions are packaged, `setup_paths` can stop adding every
+implementation subfolder. It should only expose `matlab_afdm/` and, if useful,
+`experiments/`.
 
 ## Compatibility Policy
 
-每迁移一个模块，旧函数先保留 wrapper 至少一个阶段：
+For each migrated module, keep the old function name as a wrapper for at least
+one migration stage:
 
 ```matlab
 function y = old_function(varargin)
@@ -123,4 +129,5 @@ function y = old_function(varargin)
 end
 ```
 
-等所有脚本都切到 package 调用后，再删除旧 wrapper。
+After all scripts switch to package calls and smoke tests pass, wrappers can be
+removed in a dedicated cleanup commit.

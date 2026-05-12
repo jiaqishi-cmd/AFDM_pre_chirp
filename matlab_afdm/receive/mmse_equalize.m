@@ -4,10 +4,10 @@ function x_est = mmse_equalize(y_daft, H_eff, noise_var)
 
     [N, M] = size(H_eff);
     if N ~= M
-        error('等效信道矩阵 H_eff 必须为方阵。');
+        error('H_eff must be square.');
     end
     if numel(y_daft) ~= N
-        error('y_daft 长度必须等于 H_eff 的维度。');
+        error('y_daft length must equal H_eff dimensions.');
     end
 
     W_mmse = (H_eff' * H_eff + noise_var * eye(N)) \ H_eff';

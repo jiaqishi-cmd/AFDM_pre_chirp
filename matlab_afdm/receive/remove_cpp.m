@@ -8,7 +8,7 @@ function r_data = remove_cpp(r_signal, cpp_len)
         cpp_len = 0;
     end
     if cpp_len < 0 || cpp_len > numel(r_signal)
-        error('CPP 长度必须在 0 到信号长度之间。');
+        error('CPP length must be between 0 and the signal length.');
     end
 
     r_data = r_signal(cpp_len + 1 : end);

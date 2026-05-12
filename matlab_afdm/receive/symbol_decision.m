@@ -4,7 +4,7 @@ function x_dec = symbol_decision(x_est, M_mod, modType)
 %   modType: 'qam' 或 'psk'
 
     if nargin < 2 || isempty(M_mod)
-        error('请输入有效的调制阶数 M_mod。');
+        error('M_mod must be provided.');
     end
     if nargin < 3 || isempty(modType)
         modType = 'qam';
@@ -16,6 +16,6 @@ function x_dec = symbol_decision(x_est, M_mod, modType)
         case 'psk'
             x_dec = pskdemod(x_est, M_mod, pi/M_mod, 'OutputType', 'bit');
         otherwise
-            error('不支持的调制类型: %s. 仅支持 ''qam'' 或 ''psk''.', modType);
+            error('Unsupported modulation type: %s. Supported types are qam and psk.', modType);
     end
 end

@@ -30,7 +30,7 @@ function y = multipath_channel(signal, config)
     % 验证参数长度一致性
     taps = numel(delay_taps);
     if numel(doppler_freq) ~= taps || numel(chan_coef) ~= taps
-        error('delay_taps, doppler_freq, chan_coef 长度必须相同。');
+        error('delay_taps, doppler_freq, and chan_coef must have the same length.');
     end
     
     signal = signal(:);
