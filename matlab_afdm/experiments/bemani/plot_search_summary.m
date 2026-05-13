@@ -1,5 +1,5 @@
-﻿function plot_search_summary(results_table, outputDir, timestamp)
-%PLOT_SEARCH_SUMMARY 缁樺埗 GPS 鐙湁杩戦€€绉╂悳绱㈡憳瑕佸浘銆?
+function plot_search_summary(results_table, outputDir, timestamp)
+%PLOT_SEARCH_SUMMARY 缁樺�?GPS 鐙湁杩戦€€绉╂悳绱㈡憳瑕佸浘�?
     if nargin < 2 || isempty(outputDir)
         outputDir = pwd;
     end

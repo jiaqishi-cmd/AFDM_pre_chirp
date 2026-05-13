@@ -1,39 +1,36 @@
-﻿% RUN_CASEA_THETA_SCAN
-% 鎵弿 Case A 鍥哄畾涓ゅ緞淇￠亾鐨勮矾寰勫鐩婄浉浣?theta锛岄獙璇?GPS 鍦ㄧ壒瀹?% fixed-channel phase 涓嬬殑 worst-case diversity vulnerability銆?%
-% 瀹氫綅璇存槑锛?% 鏈疄楠屼笉鏄负浜嗚瘉鏄?GPS 鍦?Rayleigh 骞冲潎淇￠亾涓嬩竴瀹氬け璐ワ紝鑰屾槸楠岃瘉锛?% 鍦?Case A 杩欑 Bemani key-equation 鍗遍櫓 delay-Doppler 鏉′欢涓嬶紝
-% GPS 鐨勭壒瀹?pattern 鍙兘瀵规煇浜涜矾寰勭浉浣嶅嚭鐜版槑鏄?BER floor銆?
+% RUN_CASEA_THETA_SCAN
+% 鎵�?Case A 鍥哄畾涓ゅ緞淇￠亾鐨勮矾寰勫鐩婄浉�?theta锛岄獙璇?GPS 鍦ㄧ壒�?% fixed-channel phase 涓嬬�?worst-case diversity vulnerability�?%
+% 瀹氫綅璇存槑�?% 鏈疄楠屼笉鏄负浜嗚瘉�?GPS �?Rayleigh 骞冲潎淇￠亾涓嬩竴瀹氬け璐ワ紝鑰屾槸楠岃瘉�?% �?Case A 杩欑�?Bemani key-equation 鍗遍�?delay-Doppler 鏉′欢涓嬶�?% GPS 鐨勭壒�?pattern 鍙兘瀵规煇浜涜矾寰勭浉浣嶅嚭鐜版槑鏄?BER floor�?
 rootDir = find_afdm_root(fileparts(mfilename('fullpath')));
 addpath(rootDir);
 setup_paths(rootDir);
 
 % ========================
-% 鍙皟浠跨湡鍙傛暟
-% ========================
+% 鍙皟浠跨湡鍙傛�?% ========================
 rng(1, 'twister');
 if ~exist('theta_list', 'var')
-    theta_list = linspace(0, 2 * pi, 181);   % 0 鍒?2pi锛屾瘡 1 搴︿竴涓偣
+    theta_list = linspace(0, 2 * pi, 181);   % 0 �?2pi锛屾�?1 搴︿竴涓偣
 end
 if ~exist('SNR_dB', 'var')
-    SNR_dB = 28;                             % 楂?SNR 涓嬭瀵?BER floor
+    SNR_dB = 28;                             % �?SNR 涓嬭�?BER floor
 end
 if ~exist('minErrTarget', 'var')
-    minErrTarget = 100;                      % 姣忎釜 theta/scheme 鑷冲皯绱鐨勮姣旂壒鐩爣
-end
+    minErrTarget = 100;                      % 姣忎�?theta/scheme 鑷冲皯绱鐨勮姣旂壒鐩�?end
 if ~exist('maxBits', 'var')
-    maxBits = 2e5;                           % 姣忎釜 theta/scheme 鐨勬渶澶т豢鐪?bit 鏁?end
+    maxBits = 2e5;
+end
 if ~exist('maxFrames', 'var')
     maxFrames = ceil(maxBits / 64) + 10;     % BPSK 姣忓抚绾?N=64 bit
 end
 
 % ========================
-% 鍥哄畾 Case A 鍙傛暟
-% ========================
+% 鍥哄�?Case A 鍙傛�?% ========================
 N = 64;
 V = 4;
 alpha_max = 3;
 c1 = (2 * alpha_max + 1) / (2 * N);
 c2_base = sqrt(2) / (10 * N);
-gps_pattern = [2 2 1 1];                    % pattern_half2锛屽墠闈㈡悳绱㈠嚭鐨勫嵄闄?pattern
+gps_pattern = [2 2 1 1];                    % pattern_half2锛屽墠闈㈡悳绱㈠嚭鐨勫嵄�?pattern
 proposed_pattern = gps_pattern;
 proposed_delta = c2_base / 16;
 
@@ -43,8 +40,8 @@ l2 = 2;
 alpha2 = 2;
 L = 16; %#ok<NASGU>
 
-[c2_gps, ~] = build_c2m_gps_pattern(N, V, gps_pattern);
-[c2_prop, ~] = build_c2m_proposed_pattern(N, V, proposed_pattern, c2_base, proposed_delta);
+[c2_gps, ~] = afdm.chirp.build_gps_pattern(N, V, gps_pattern);
+[c2_prop, ~] = afdm.chirp.build_proposed_pattern(N, V, proposed_pattern, c2_base, proposed_delta);
 
 schemes = {'baseline', 'GPS', 'proposed'};
 c2_values = {c2_base, c2_gps, c2_prop};
@@ -91,7 +88,7 @@ for thetaIdx = 1:numTheta
         frames_used(thetaIdx, schemeIdx) = frameIdx;
         ber(thetaIdx, schemeIdx) = err / max(bits, 1);
 
-        % 鍙敤浜?semilogy 鏄剧ず锛涘師濮?BER 浠嶇劧淇濆瓨鍦?ber 涓€?        if err == 0
+        if err == 0
             ber_plot(thetaIdx, schemeIdx) = 0.5 / max(bits, 1);
         else
             ber_plot(thetaIdx, schemeIdx) = ber(thetaIdx, schemeIdx);
@@ -104,7 +101,7 @@ for thetaIdx = 1:numTheta
         ber(thetaIdx, 2), error_count(thetaIdx, 2), total_bits(thetaIdx, 2), ...
         ber(thetaIdx, 3), error_count(thetaIdx, 3), total_bits(thetaIdx, 3));
 
-    % 閫?theta 淇濆瓨杩涘害锛岄伩鍏嶉暱鎵弿琚腑鏂悗瀹屽叏涓㈠け缁撴灉銆?    save(progressPath, ...
+    save(progressPath, ...
         'theta_list', 'SNR_dB', 'schemes', 'ber', 'ber_plot', ...
         'error_count', 'total_bits', 'frames_used', ...
         'minErrTarget', 'maxBits', 'gps_pattern', 'thetaIdx');
@@ -148,7 +145,7 @@ fprintf('At theta=pi: baseline=%.3e, GPS=%.3e, proposed=%.3e\n', ...
 fprintf('Saved theta scan to %s\n', fullfile(outputDir, 'results_caseA_theta_scan.mat'));
 
 function cfg = build_caseA_config(N, c1, c2, snrDb, delayTaps, dopplerTaps, gains)
-    % 鏋勯€?Case A 鐨勫浐瀹氫俊閬撻厤缃€傛帴鏀剁浠嶄娇鐢ㄧ幇鏈?MMSE 閾捐矾鍜岀悊鎯?CSI銆?    cfg = afdm_config();
+    cfg = afdm_config();
     cfg.waveform.NumSubcarriers = N;
     cfg.waveform.CPPLength = max(delayTaps);
     cfg.waveform.c1 = c1;

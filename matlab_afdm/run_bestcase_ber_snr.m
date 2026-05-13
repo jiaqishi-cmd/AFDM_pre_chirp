@@ -1,8 +1,6 @@
 function results = run_bestcase_ber_snr(best_case, options)
-%RUN_BESTCASE_BER_SNR 对搜索得到的 best_case 做 BER-SNR 验证。
-%   使用固定两径支撑，路径增益每帧 Rayleigh 随机。当前工程没有 ML
-%   检测器，因此默认使用现有 MMSE 接收链路。
-
+%RUN_BESTCASE_BER_SNR 对搜索得到的 best_case �?BER-SNR 验证�?%   使用固定两径支撑，路径增益每�?Rayleigh 随机。当前工程没�?ML
+%   检测器，因此默认使用现�?MMSE 接收链路�?
     if nargin < 2
         options = struct();
     end
@@ -23,8 +21,8 @@ function results = run_bestcase_ber_snr(best_case, options)
     gpsPattern = parse_pattern(best_case.gps_pattern);
     propPattern = parse_pattern(best_case.proposed_pattern);
     proposed_delta = c2_base / 16;
-    [c2_gps, ~] = build_c2m_gps_pattern(N, V, gpsPattern);
-    [c2_prop, ~] = build_c2m_proposed_pattern(N, V, propPattern, c2_base, proposed_delta);
+    [c2_gps, ~] = afdm.chirp.build_gps_pattern(N, V, gpsPattern);
+    [c2_prop, ~] = afdm.chirp.build_proposed_pattern(N, V, propPattern, c2_base, proposed_delta);
 
     results.best_case = best_case;
     results.snr_values = snrValues;
@@ -98,8 +96,7 @@ function cfg = build_frame_config(best_case, scheme, c2_base, c2_gps, c2_prop, c
 end
 
 function gains = build_path_gains(gainMode, fixedTheta)
-    % Rayleigh 用于平均 BER；fixed 用于放大某个两径相消相位下的 worst-case 倾向。
-    switch gainMode
+    % Rayleigh 用于平均 BER；fixed 用于放大某个两径相消相位下的 worst-case 倾向�?    switch gainMode
         case 'rayleigh'
             gains = (randn(1, 2) + 1i * randn(1, 2)) / sqrt(4);
         case 'fixed'

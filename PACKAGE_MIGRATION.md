@@ -18,6 +18,8 @@ matlab_afdm/
     +chirp/
     +metrics/
     +search/
+    +analysis/
+    +delta/
   experiments/
 ```
 
@@ -39,6 +41,26 @@ Practical meaning:
 - We no longer need to expose every implementation subfolder once migration is complete.
 
 ## Current Migration Status
+
+### Shared analysis and delta helpers
+
+Done:
+
+- Added `matlab_afdm/+afdm/+analysis/`
+- Added:
+  - `afdm.analysis.build_path_matrix`
+  - `afdm.analysis.bemani_equation_error`
+  - `afdm.analysis.phi_metrics`
+  - `afdm.analysis.dmin_over_delta_set`
+- Added `matlab_afdm/+afdm/+delta/`
+- Added:
+  - `afdm.delta.generate_set_extended`
+  - `afdm.delta.generate_set_for_dmin`
+  - `afdm.delta.generate_set_for_equation_search`
+  - `afdm.delta.build_recursive_from_gps`
+- Removed root-level analysis/delta helper wrappers after updating call sites.
+- Moved formal reproduction and resume runners to
+  `matlab_afdm/experiments/reproduction/`.
 
 ### Stage 1: metrics package
 
@@ -70,13 +92,15 @@ Done:
   - `afdm.chirp.group_index`
   - `afdm.chirp.gps_candidate_set`
   - `afdm.chirp.get_param`
-- Kept compatibility wrappers:
+- Updated core pre-chirp entry points:
+  - `afdm.chirp.apply_scheme`
+  - `afdm.chirp.select_for_symbols`
+  - `afdm.chirp.select_greedy_profile`
+- Removed local compatibility wrappers after archiving legacy code:
   - `build_pre_chirp_profile`
   - `build_c2m_gps_pattern`
   - `build_c2m_proposed_pattern`
-- Updated core pre-chirp entry points:
-  - `apply_pre_chirp_scheme`
-  - `select_greedy_profile`
+  - `pre_chirp/`
 
 ### Stage 3: search package
 
@@ -100,13 +124,12 @@ Partially done:
 
 Remaining search cleanup:
 
-- Update `run_partial_reuse_M_sweep.m`
-- Update `run_partial_reuse_topK_sweep.m`
-- Consider migrating `run_papr_search_complexity_study.m`
+- Review whether the package-level `afdm.search.*` functions should expose a
+  smaller public facade for experiments, or remain as implementation helpers.
 
 ### Stage 4: tx/rx/channel packages
 
-Stage 4A tx package is in progress/done:
+Stage 4A tx package is done:
 
 - Added `matlab_afdm/+afdm/+tx/`
 - Added:
@@ -115,7 +138,7 @@ Stage 4A tx package is in progress/done:
   - `afdm.tx.add_cpp`
   - `afdm.tx.compute_papr`
   - `afdm.tx.random_data`
-- Kept compatibility wrappers:
+- Removed local compatibility wrappers after archiving legacy code:
   - `afdm_tx_engine`
   - `idaft_mod`
   - `add_cpp`
@@ -125,37 +148,44 @@ Stage 4A tx package is in progress/done:
   - `simulate_frame`
   - `afdm.search.*` PAPR/IDAFT calls
 
-Remaining core link package work:
+Stage 4B rx/channel package is done:
 
-```text
-+afdm/+rx/
-+afdm/+channel/
-```
+- Added `matlab_afdm/+afdm/+rx/`
+- Added:
+  - `afdm.rx.engine`
+  - `afdm.rx.remove_cpp`
+  - `afdm.rx.daft_demod`
+  - `afdm.rx.estimate_effective_channel`
+  - `afdm.rx.mmse_equalize`
+  - `afdm.rx.equalize_symbols`
+  - `afdm.rx.symbol_decision`
+  - `afdm.rx.compute_bit_errors`
+- Added `matlab_afdm/+afdm/+channel/`
+- Added:
+  - `afdm.channel.generate_profile`
+  - `afdm.channel.multipath`
+  - `afdm.channel.add_awgn`
+- Removed local compatibility wrapper directories after archiving legacy code
+  to remote branches:
+  - `legacy/pre-package-migration`
+  - `legacy/pre-rx-channel-package`
+- Updated:
+  - `afdm_config`
+  - `configure_experiment`
+  - `simulate_frame`
+  - channel diagnostic helpers
 
-Candidates:
+Remaining package cleanup:
 
-- `daft_demod`, `mmse_equalize`, `estimate_effective_channel`
-- `multipath_channel`, `add_awgn`
-
-This stage is riskier because many functions call each other. Do it in a
-separate commit with smoke tests.
+- Review older exploratory scripts for possible archival, but packageable shared
+  helpers have been moved under `+afdm`.
 
 ### Stage 5: reduce setup_paths
 
-Once all stable functions are packaged, `setup_paths` can stop adding every
-implementation subfolder. It should only expose `matlab_afdm/` and, if useful,
-`experiments/`.
+`setup_paths` now exposes only `matlab_afdm/` and `experiments/`.
 
 ## Compatibility Policy
 
-For each migrated module, keep the old function name as a wrapper for at least
-one migration stage:
-
-```matlab
-function y = old_function(varargin)
-    y = afdm.module.new_function(varargin{:});
-end
-```
-
-After all scripts switch to package calls and smoke tests pass, wrappers can be
-removed in a dedicated cleanup commit.
+The current branch has moved past the local-wrapper compatibility stage for
+tx/rx/channel/chirp. Older path-based code is preserved on the remote legacy
+branches, while active code should call `afdm.*` package functions directly.

@@ -88,7 +88,7 @@ end
 function cfg = proposed_config(base_config, delta)
     cfg = base_config;
     cfg.pre_chirp.delta = delta;
-    cfg = apply_pre_chirp_scheme(cfg, 'proposed_grouping');
+    cfg = afdm.chirp.apply_scheme(cfg, 'proposed_grouping');
 end
 
 function reference = run_reference_schemes(base_config, base_seed, numPaprFrames, numBerFrames, snr_values)
@@ -105,7 +105,7 @@ function reference = run_reference_schemes(base_config, base_seed, numPaprFrames
     fprintf('========== Reference PAPR sampling ==========\n');
     for frame_idx = 1:numPaprFrames
         for scheme_idx = 1:num_schemes
-            cfg = apply_pre_chirp_scheme(base_config, schemes{scheme_idx});
+            cfg = afdm.chirp.apply_scheme(base_config, schemes{scheme_idx});
             frame = simulate_frame(cfg, base_seed + frame_idx, frame_options);
             reference.papr_samples(frame_idx, scheme_idx) = frame.papr;
         end
@@ -116,7 +116,7 @@ function reference = run_reference_schemes(base_config, base_seed, numPaprFrames
         snr_db = snr_values(snr_idx);
 
         for scheme_idx = 1:num_schemes
-            cfg = apply_pre_chirp_scheme(base_config, schemes{scheme_idx});
+            cfg = afdm.chirp.apply_scheme(base_config, schemes{scheme_idx});
             cfg.channel.snr_db = snr_db;
 
             [ber_value, ~, ~] = run_ber_frames(cfg, base_seed, snr_idx, numBerFrames, frame_options);

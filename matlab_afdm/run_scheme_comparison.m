@@ -35,7 +35,7 @@ function results = run_scheme_comparison(numPaprFrames, numBerFrames, snr_values
     fprintf('========== PAPR sampling ==========\n');
     for frame_idx = 1:numPaprFrames
         for scheme_idx = 1:num_schemes
-            cfg = apply_pre_chirp_scheme(base_config, schemes{scheme_idx});
+            cfg = afdm.chirp.apply_scheme(base_config, schemes{scheme_idx});
             frame = simulate_frame(cfg, base_seed + frame_idx, frame_options);
             results.papr_samples(frame_idx, scheme_idx) = frame.papr;
         end
@@ -53,7 +53,7 @@ function results = run_scheme_comparison(numPaprFrames, numBerFrames, snr_values
             total_err_bits = 0;
             total_bits = 0;
 
-            cfg = apply_pre_chirp_scheme(base_config, schemes{scheme_idx});
+            cfg = afdm.chirp.apply_scheme(base_config, schemes{scheme_idx});
             cfg.channel.snr_db = snr_db;
 
             for frame_idx = 1:numBerFrames

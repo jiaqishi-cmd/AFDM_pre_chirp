@@ -22,7 +22,7 @@ function config = afdm_config()
 
     oldRngState = rng;
     rng(config.simulation.random_seed, 'twister');
-    config = generate_channel_profile(config, config.channel.profile);
+    config = afdm.channel.generate_profile(config, config.channel.profile);
     rng(oldRngState);
 
     k_v = 1;
@@ -37,7 +37,7 @@ function config = afdm_config()
     config.pre_chirp.num_candidates = 2;
     config.pre_chirp.group_spacing = base_c2 / 4;
     config.pre_chirp.delta = base_c2 / 16;
-    config = apply_pre_chirp_scheme(config, config.pre_chirp.scheme);
+    config = afdm.chirp.apply_scheme(config, config.pre_chirp.scheme);
 
     config.simulation.enable_snr_loop = true;
     config.simulation.snr_range = 0:5:30;

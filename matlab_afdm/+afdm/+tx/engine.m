@@ -12,7 +12,7 @@ function [signalCpp, papr, bits, txState] = engine(config)
     cppLength = config.waveform.CPPLength;
 
     [symbols, bits] = build_tx_symbols(config, numSubcarriers, MMod, modType);
-    txState.pre_chirp_profile = select_pre_chirp_for_symbols(symbols, config);
+    txState.pre_chirp_profile = afdm.chirp.select_for_symbols(symbols, config);
     txState.c2 = txState.pre_chirp_profile.c2;
     txState.scheme = txState.pre_chirp_profile.scheme;
     txState.symbols = symbols;

@@ -1,6 +1,6 @@
-﻿% MAIN_GPS_UNIQUE_RANK_LOSS_SEARCH
-% 寮哄寲鎼滅储锛氬鎵?GPS 鐨?Phi(delta) 鐙湁閫€绉?杩戦€€绉?case銆?% 娉ㄦ剰锛氭湰鑴氭湰涓嶄娇鐢?total H_eff 鐨?rank 浣滀负渚濇嵁锛屽彧璁＄畻
-% Phi(delta)=[H1*delta,H2*delta]锛屽叾涓?H1/H2 鏄崟浣嶈矾寰勫崟寰勭煩闃点€?
+% MAIN_GPS_UNIQUE_RANK_LOSS_SEARCH
+% 寮哄寲鎼滅储锛氬鎵?GPS �?Phi(delta) 鐙湁閫€绉?杩戦€€�?case�?% 娉ㄦ剰锛氭湰鑴氭湰涓嶄娇�?total H_eff �?rank 浣滀负渚濇嵁锛屽彧璁＄畻
+% Phi(delta)=[H1*delta,H2*delta]锛屽叾涓?H1/H2 鏄崟浣嶈矾寰勫崟寰勭煩闃点�?
 rootDir = find_afdm_root(fileparts(mfilename('fullpath')));
 addpath(rootDir);
 setup_paths(rootDir);
@@ -8,11 +8,10 @@ setup_paths(rootDir);
 cfgSearch.N_list = [16, 32, 64];
 cfgSearch.V_list = [2, 4, 8];
 cfgSearch.alpha_max_list = [1, 2, 3];
-cfgSearch.max_exhaustive_bpsk = 4096;   % 鍏?2^16 鍙斁寮€锛屼絾榛樿闄愰噺閬垮厤鐖嗙偢
+cfgSearch.max_exhaustive_bpsk = 4096;   % �?2^16 鍙斁寮€锛屼絾榛樿闄愰噺閬垮厤鐖嗙偢
 cfgSearch.num_random_bpsk = 2000;
 cfgSearch.num_random_qpsk = 2000;
-cfgSearch.max_phi_rows = 200000;        % 鍙 key-equation 寮哄€欓€夊仛 Phi 绮剧畻
-cfgSearch.seed = 20260427;
+cfgSearch.max_phi_rows = 200000;        % 鍙�?key-equation 寮哄€欓€夊�?Phi 绮剧�?cfgSearch.seed = 20260427;
 
 fprintf('========== GPS unique Phi rank-loss search ==========\n');
 fprintf('N=%s | V=%s | alpha_max=%s\n', ...
@@ -55,14 +54,14 @@ for N = cfgSearch.N_list
 
                 for gpsIdx = 1:size(gpsPatterns, 1)
                     gpsPattern = gpsPatterns(gpsIdx, :);
-                    [c2_gps, d_gps] = build_c2m_gps_pattern(N, V, gpsPattern);
+                    [c2_gps, d_gps] = afdm.chirp.build_gps_pattern(N, V, gpsPattern);
                     path_phase = exp(1i * 2 * pi / N * (caseDef.l2 - caseDef.l1) * caseDef.L);
                     deltaOptions = struct( ...
                         'max_exhaustive_bpsk', cfgSearch.max_exhaustive_bpsk, ...
                         'num_random_bpsk', cfgSearch.num_random_bpsk, ...
                         'num_random_qpsk', cfgSearch.num_random_qpsk, ...
                         'seed', cfgSearch.seed + 1000 * gpsIdx + caseIdx);
-                    deltaSet = generate_delta_set_extended(N, V, caseDef.L, d_gps, path_phase, deltaOptions);
+                    deltaSet = afdm.delta.generate_set_extended(N, V, caseDef.L, d_gps, path_phase, deltaOptions);
 
                     H_cache = containers.Map('KeyType', 'char', 'ValueType', 'any');
                     H1_base = cached_H(H_cache, N, c1, c2_base, 'base', caseDef.l1, caseDef.alpha1);
@@ -72,7 +71,7 @@ for N = cfgSearch.N_list
 
                     for deltaIdx = 1:numel(deltaSet)
                         delta = deltaSet(deltaIdx).delta;
-                        gpsErr = compute_bemani_equation_error(delta, d_gps, caseDef.L, ...
+                        gpsErr = afdm.analysis.bemani_equation_error(delta, d_gps, caseDef.L, ...
                             caseDef.l2 - caseDef.l1, N, c2_values);
                         proposedErr = best_proposed_error(delta, proposedCache, proposedPatterns, ...
                             caseDef.L, caseDef.l2 - caseDef.l1, N, c2_values);
@@ -85,13 +84,13 @@ for N = cfgSearch.N_list
                             break;
                         end
 
-                        [c2_prop, ~] = build_c2m_proposed_pattern(N, V, proposedErr.pattern, c2_base, proposed_delta);
+                        [c2_prop, ~] = afdm.chirp.build_proposed_pattern(N, V, proposedErr.pattern, c2_base, proposed_delta);
                         H1_prop = cached_H(H_cache, N, c1, c2_prop, pattern_key('prop', proposedErr.pattern), caseDef.l1, caseDef.alpha1);
                         H2_prop = cached_H(H_cache, N, c1, c2_prop, pattern_key('prop', proposedErr.pattern), caseDef.l2, caseDef.alpha2);
 
-                        basePhi = evaluate_phi_metrics(H1_base, H2_base, delta);
-                        gpsPhi = evaluate_phi_metrics(H1_gps, H2_gps, delta);
-                        propPhi = evaluate_phi_metrics(H1_prop, H2_prop, delta);
+                        basePhi = afdm.analysis.phi_metrics(H1_base, H2_base, delta);
+                        gpsPhi = afdm.analysis.phi_metrics(H1_gps, H2_gps, delta);
+                        propPhi = afdm.analysis.phi_metrics(H1_prop, H2_prop, delta);
 
                         rowCount = rowCount + 1;
                         rows = fill_row(rows, rowCount, N, V, M, alpha_max, c1, c2_base, ...
@@ -179,7 +178,7 @@ end
 function cache = build_proposed_cache(N, V, patterns, c2_base, delta)
     cache = cell(size(patterns, 1), 2);
     for idx = 1:size(patterns, 1)
-        [cache{idx, 1}, cache{idx, 2}] = build_c2m_proposed_pattern(N, V, patterns(idx, :), c2_base, delta);
+        [cache{idx, 1}, cache{idx, 2}] = afdm.chirp.build_proposed_pattern(N, V, patterns(idx, :), c2_base, delta);
     end
 end
 
@@ -194,7 +193,7 @@ function proposedErr = best_proposed_error(delta, proposedCache, proposedPattern
     bestMetrics = [];
     bestIdx = 1;
     for idx = 1:size(proposedPatterns, 1)
-        metrics = compute_bemani_equation_error(delta, proposedCache{idx, 2}, L, ldiff, N, c2_values);
+        metrics = afdm.analysis.bemani_equation_error(delta, proposedCache{idx, 2}, L, ldiff, N, c2_values);
         if metrics.mean_E_GPS < bestMean
             bestMean = metrics.mean_E_GPS;
             bestMetrics = metrics;
@@ -212,7 +211,7 @@ function H = cached_H(H_cache, N, c1, c2m, keyPrefix, l, alpha)
         H = H_cache(key);
         return;
     end
-    H = build_H_path_general_c2m(N, c1, c2m, l, alpha);
+    H = afdm.analysis.build_path_matrix(N, c1, c2m, l, alpha);
     H_cache(key) = H;
 end
 

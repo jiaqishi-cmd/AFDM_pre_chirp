@@ -1,11 +1,11 @@
-﻿% RUN_PARTIAL_REUSE_TOPK_SWEEP
-% 鐮旂┒ partial waveform reuse 涓?topK/beam 瀹藉害鍙樺寲甯︽潵鐨?PAPR 涓庡鏉傚害鎶樹腑銆?% 鏈€缁?reported PAPR 鍧囦娇鐢?final_os=4 閲嶆柊璁＄畻銆?
+% RUN_PARTIAL_REUSE_TOPK_SWEEP
+% 鐮旂�?partial waveform reuse �?topK/beam 瀹藉害鍙樺寲甯︽潵鐨?PAPR 涓庡鏉傚害鎶樹腑銆?% 鏈€�?reported PAPR 鍧囦娇鐢?final_os=4 閲嶆柊璁＄畻�?
 rootDir = find_afdm_root(fileparts(mfilename('fullpath')));
 addpath(rootDir);
 setup_paths(rootDir);
 
 % ========================
-% 鍙傛暟闆嗕腑璁剧疆
+% 鍙傛暟闆嗕腑璁剧�?
 % ========================
 rng(1, 'twister');
 if ~exist('M', 'var'), M = 64; end
@@ -111,7 +111,7 @@ for deltaIdx = 1:numDelta
 end
 
 % ========================
-% Summary 鎺ㄨ崘 topK
+% Summary 鎺ㄨ�?topK
 % ========================
 for deltaIdx = 1:numDelta
     delta_ratio = delta_ratio_list(deltaIdx);
@@ -125,7 +125,7 @@ for deltaIdx = 1:numDelta
 end
 
 % ========================
-% 缁樺浘
+% 缁樺�?
 % ========================
 fig1 = figure('Color', 'w');
 plot_by_delta(topK_list, papr_at_1e3, delta_ratio_list);

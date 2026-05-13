@@ -1,26 +1,28 @@
-﻿% RUN_CASEA_FIXED_BER_DEEP
-% 瀵?Case A + theta=pi 鐨?fixed-channel BER 鍋氶珮 bit 鏁伴獙璇併€?% 鐩爣锛氭妸 BER 浣滀负涓昏瘉鎹紝纭 GPS 鐨?error floor 涓?proposed/baseline 鐨勫樊寮傘€?
+% RUN_CASEA_FIXED_BER_DEEP
+% �?Case A + theta=pi �?fixed-channel BER 鍋氶�?bit 鏁伴獙璇併€?% 鐩爣锛氭妸 BER 浣滀负涓昏瘉鎹紝纭 GPS �?error floor �?proposed/baseline 鐨勫樊寮傘€?
 rootDir = find_afdm_root(fileparts(mfilename('fullpath')));
 addpath(rootDir);
 setup_paths(rootDir);
 
 % ========================
-% 鍙傛暟闆嗕腑璁剧疆
-% ========================
+% 鍙傛暟闆嗕腑璁剧�?% ========================
 rng(1, 'twister');
 SNR_dB = 0:2:34;
-maxBitsPerSNR = 1e6;        % 姣忎釜 SNR銆佹瘡涓?scheme 鐨勬渶澶?bit 鏁?minErrTarget = 300;         % 璇爜杈惧埌璇ュ€煎悗鍙彁鍓嶅仠姝?theta = pi;                 % Case A worst fixed phase
-delta_ratio = 0.2;          % delta sweep 涓緝绋崇殑鎶樹腑鐐?M_mod = 2;                  % BPSK
+maxBitsPerSNR = 1e6;
+minErrTarget = 300;
+theta = pi;
+delta_ratio = 0.2;
+M_mod = 2;
 
 N = 64;
 V = 4;
 c1 = 7 / (2 * N);
 c2_base = sqrt(2) / (10 * N);
 delta = delta_ratio * c2_base;
-gps_pattern = [2 2 1 1];    % Case A 涓?GPS 鐨勫嵄闄?pattern
+gps_pattern = [2 2 1 1];    % Case A �?GPS 鐨勫嵄闄?pattern
 prop_pattern = [2 2 1 1];   % proposed 浣跨敤鍚?group pattern 浣滃浐瀹氬鐓?
-[c2_gps, ~] = build_c2m_gps_pattern(N, V, gps_pattern);
-[c2_prop, ~] = build_c2m_proposed_pattern(N, V, prop_pattern, c2_base, delta);
+[c2_gps, ~] = afdm.chirp.build_gps_pattern(N, V, gps_pattern);
+[c2_prop, ~] = afdm.chirp.build_proposed_pattern(N, V, prop_pattern, c2_base, delta);
 
 schemes = {'baseline', 'GPS', 'proposed'};
 c2_list = {c2_base, c2_gps, c2_prop};

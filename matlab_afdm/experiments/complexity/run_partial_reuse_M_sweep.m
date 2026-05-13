@@ -1,12 +1,12 @@
-﻿% RUN_PARTIAL_REUSE_M_SWEEP
-% 楠岃瘉涓嶅悓 AFDM block size M 涓嬶紝partial waveform reuse 鐩告瘮 full recompute
-% 鐨?runtime 鍔犻€熻秼鍔裤€傝鑴氭湰涓嶄慨鏀瑰凡鏈変富浠跨湡鑴氭湰銆?
+% RUN_PARTIAL_REUSE_M_SWEEP
+% 楠岃瘉涓嶅悓 AFDM block size M 涓嬶紝partial waveform reuse 鐩告�?full recompute
+% �?runtime 鍔犻€熻秼鍔裤€傝鑴氭湰涓嶄慨鏀瑰凡鏈変富浠跨湡鑴氭湰銆?
 rootDir = find_afdm_root(fileparts(mfilename('fullpath')));
 addpath(rootDir);
 setup_paths(rootDir);
 
 % ========================
-% 鍙傛暟闆嗕腑璁剧疆
+% 鍙傛暟闆嗕腑璁剧�?
 % ========================
 rng(1, 'twister');
 if ~exist('M_list', 'var'), M_list = [64 128 256]; end
@@ -137,7 +137,7 @@ for mIdx = 1:numM
 end
 
 % ========================
-% 缁樺浘
+% 缁樺�?
 % ========================
 fig1 = figure('Color', 'w');
 plot(M_list, 1e3 * avg_runtime_full, '-o', 'LineWidth', 1.8); hold on;

@@ -7,10 +7,15 @@ This workspace contains a MATLAB implementation of an AFDM transmit-channel-rece
 - `matlab_afdm/afdm_config.m`: shared simulation, waveform, modulation, and channel configuration.
 - `matlab_afdm/main_simulation.m`: single-run end-to-end simulation.
 - `matlab_afdm/simulation_loop.m`: SNR sweep or Monte Carlo simulation entry point.
-- `matlab_afdm/transmitter/`: random bit generation, QAM/PSK modulation, IDAFT modulation, CPP insertion, and PAPR calculation.
-- `matlab_afdm/channel/`: multipath Doppler channel and AWGN.
-- `matlab_afdm/receive/`: CPP removal, DAFT demodulation, effective-channel estimation, MMSE equalization, symbol decision, and BER counting.
-- `matlab_afdm/pre_chirp/`: pre-chirp profile construction and frame-level selection. Top-level files provide the config/selection entry points, `profiles/` defines baseline, GPS, and proposed schemes, and `utilities/` contains shared candidate-set and grouping helpers. GPS uses the paper-style candidate set, while the proposed profile keeps the original AFDM `c2` and greedily applies small group-wise perturbations from `{0, -delta, +delta}`.
+- `matlab_afdm/+afdm/+tx/`: random bit generation, QAM/PSK modulation, IDAFT modulation, CPP insertion, and PAPR calculation.
+- `matlab_afdm/+afdm/+channel/`: channel profile generation, multipath Doppler channel, and AWGN.
+- `matlab_afdm/+afdm/+rx/`: CPP removal, DAFT demodulation, effective-channel estimation, equalization, symbol decision, and BER counting.
+- `matlab_afdm/+afdm/+chirp/`: pre-chirp profiles, grouped c2 pattern builders, and frame-level profile selection.
+- `matlab_afdm/+afdm/+analysis/`: reusable channel-matrix, distance, Phi, and Bemani-equation analysis helpers.
+- `matlab_afdm/+afdm/+delta/`: structured, random, and recursive delta-set generators.
+- `matlab_afdm/experiments/reproduction/`: formal reproduction and resume runners.
+- Legacy `transmitter/`, `channel/`, `receive/`, and `pre_chirp/` wrapper directories were removed from the current branch after archiving older code on GitHub branches `legacy/pre-package-migration` and `legacy/pre-rx-channel-package`.
+- Pre-chirp profile construction and frame-level selection now live in `matlab_afdm/+afdm/+chirp/`. GPS uses the paper-style candidate set, while the proposed profile keeps the original AFDM `c2` and greedily applies small group-wise perturbations from `{0, -delta, +delta}`.
 
 ## Run
 

@@ -1,5 +1,5 @@
-﻿% RUN_PROPOSED_DELTA_BER_CURVES
-% 姣旇緝 proposed 涓嶅悓 delta/c2 鍦?Case A fixed-channel 涓嬬殑 BER-SNR 鏇茬嚎銆?% 璇ュ浘鐢ㄤ簬瑙傚療 delta 瀵?BER 椴佹鎬х殑褰卞搷锛宐aseline/GPS 浣滀负鍙傝€冦€?
+% RUN_PROPOSED_DELTA_BER_CURVES
+% 姣旇�?proposed 涓嶅�?delta/c2 �?Case A fixed-channel 涓嬬�?BER-SNR 鏇茬嚎銆?% 璇ュ浘鐢ㄤ簬瑙傚�?delta �?BER 椴佹鎬х殑褰卞搷锛宐aseline/GPS 浣滀负鍙傝€冦€?
 rootDir = find_afdm_root(fileparts(mfilename('fullpath')));
 addpath(rootDir);
 setup_paths(rootDir);
@@ -22,7 +22,7 @@ c2_base = sqrt(2) / (10 * N);
 gps_pattern = [2 2 1 1];
 prop_pattern = [2 2 1 1];
 
-[c2_gps, ~] = build_c2m_gps_pattern(N, V, gps_pattern);
+[c2_gps, ~] = afdm.chirp.build_gps_pattern(N, V, gps_pattern);
 
 numSnr = numel(SNR_dB);
 numDelta = numel(delta_ratio_list);
@@ -47,7 +47,7 @@ c2_curves = cell(1, numCurves);
 c2_curves{1} = c2_base;
 c2_curves{2} = c2_gps;
 for idx = 1:numDelta
-    [c2_curves{2 + idx}, ~] = build_c2m_proposed_pattern( ...
+    [c2_curves{2 + idx}, ~] = afdm.chirp.build_proposed_pattern( ...
         N, V, prop_pattern, c2_base, delta_ratio_list(idx) * c2_base);
 end
 

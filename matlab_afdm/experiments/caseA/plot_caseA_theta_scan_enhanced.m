@@ -1,4 +1,4 @@
-﻿% PLOT_CASEA_THETA_SCAN_ENHANCED
+% PLOT_CASEA_THETA_SCAN_ENHANCED
 % Case A theta scan 鐨勫寮哄悗澶勭悊缁樺浘鑴氭湰銆?% 涓嶆敼鍙樺師濮嬩豢鐪熸暟鎹紝鍙仛缁樺浘涓嬮檺銆乴og-domain 骞虫粦鍜岀粺璁″睍绀恒€?
 rootDir = find_afdm_root(fileparts(mfilename('fullpath')));
 addpath(rootDir);
@@ -6,7 +6,8 @@ addpath(rootDir);
 % ========================
 % 鍙皟鍙傛暟
 % ========================
-smooth_win = 7;          % log10(BER) 涓婄殑绉诲姩涓€肩獥鍙?default_ber_floor = 1e-5;
+smooth_win = 7;
+default_ber_floor = 1e-5;
 ber_th = 1e-3;
 ratio_th1 = 10;
 ratio_th2 = 100;
@@ -16,7 +17,7 @@ if ~exist(outputDir, 'dir')
     mkdir(outputDir);
 end
 
-% 濡傛灉宸ヤ綔鍖烘病鏈夊彉閲忥紝鍒欓粯璁よ鍙栨渶杩戜竴娆?theta scan 缁撴灉銆?if ~exist('theta_list', 'var') || ~exist('ber_base', 'var') || ...
+if ~exist('theta_list', 'var') || ~exist('ber_base', 'var') || ...
         ~exist('ber_gps', 'var') || ~exist('ber_prop', 'var')
     dataPath = fullfile(outputDir, 'results_caseA_theta_scan.mat');
     if ~exist(dataPath, 'file')
@@ -38,7 +39,7 @@ end
 end
 
 % ========================
-% 鍩烘湰棰勫鐞?% ========================
+% 鍩烘湰棰勫�?% ========================
 theta = theta_list(:);
 b0 = ber_base(:);
 b1 = ber_gps(:);
@@ -76,7 +77,7 @@ gps_high = b1 > ber_th;
 timestamp = datestr(now, 'yyyymmdd_HHMMSS');
 
 % ========================
-% 鍥?1锛氬師濮?BER + 骞虫粦 BER
+% �?1锛氬師濮?BER + 骞虫�?BER
 % ========================
 figure('Name', 'Case A theta scan raw and smoothed BER', 'Color', 'w');
 semilogy(theta_pi, b0_plot, '.', 'Color', [0.65 0.78 1.00], 'MarkerSize', 7, 'HandleVisibility', 'off'); hold on;
@@ -100,7 +101,7 @@ text(0.02, 1.25 * ber_floor, 'Zero-error points clipped to plotting floor; smoot
 saveas(gcf, fullfile(outputDir, ['fig_caseA_theta_raw_smooth_' timestamp '.png']));
 
 % ========================
-% 鍥?2锛氱浉瀵?baseline 鐨?BER ratio
+% �?2锛氱浉�?baseline �?BER ratio
 % ========================
 figure('Name', 'Case A theta scan BER ratio', 'Color', 'w');
 semilogy(theta_pi, ratio_gps, '.', 'Color', [1.00 0.78 0.55], 'MarkerSize', 7, 'HandleVisibility', 'off'); hold on;
@@ -120,7 +121,7 @@ legend('Location', 'northwest');
 saveas(gcf, fullfile(outputDir, ['fig_caseA_theta_ratio_' timestamp '.png']));
 
 % ========================
-% 鍥?3锛氬嵄闄╃浉浣嶅尯鍩熺粺璁?% ========================
+% �?3锛氬嵄闄╃浉浣嶅尯鍩熺粺�?% ========================
 max_ber_base = max(b0);
 max_ber_gps = max(b1);
 max_ber_prop = max(b2);

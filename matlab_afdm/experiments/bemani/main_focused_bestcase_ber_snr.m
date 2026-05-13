@@ -1,4 +1,4 @@
-﻿% MAIN_FOCUSED_BESTCASE_BER_SNR
+% MAIN_FOCUSED_BESTCASE_BER_SNR
 % Read focused Bemani/GPS search output and run a light BER-SNR check.
 % Default case emphasizes the largest key-equation mismatch separation.
 rootDir = find_afdm_root(fileparts(mfilename('fullpath')));
@@ -14,7 +14,7 @@ end
 
 loaded = load(bestCasePath, 'focused_best_cases');
 
-% Case A 鐨?key-equation mismatch 宸窛鏈€澶э紝鏇撮€傚悎鍏堢湅 BER 鏇茬嚎鏄惁鎷夊紑銆?% 濡傞渶鍒囧洖 Phi 鎸囨爣鏈€宸殑 Case D锛屾妸 case_kind 鏀规垚 'phi'銆?case_kind = 'mismatch';
+% Case A �?key-equation mismatch 宸窛鏈€澶э紝鏇撮€傚悎鍏堢�?BER 鏇茬嚎鏄惁鎷夊紑銆?% 濡傞渶鍒囧洖 Phi 鎸囨爣鏈€宸殑 Case D锛屾�?case_kind 鏀规垚 'phi'�?case_kind = 'mismatch';
 switch case_kind
     case 'mismatch'
         best_case = loaded.focused_best_cases.mismatch_case;

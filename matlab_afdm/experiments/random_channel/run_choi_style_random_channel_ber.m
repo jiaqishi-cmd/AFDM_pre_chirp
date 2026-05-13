@@ -1,9 +1,9 @@
-﻿% RUN_CHOI_STYLE_RANDOM_CHANNEL_BER
-% 鍙傝€?Choi 璁烘枃涓父鐢ㄧ殑 M=64銆丩cpp=8 AFDM 璁剧疆锛岄噰鐢ㄩ殢鏈?P-path
-% doubly selective Rayleigh channel锛屾瘮杈?baseline/GPS/proposed 鐨勫钩鍧?BER銆?%
+% RUN_CHOI_STYLE_RANDOM_CHANNEL_BER
+% 鍙傝�?Choi 璁烘枃涓父鐢ㄧ�?M=64銆丩cpp=8 AFDM 璁剧疆锛岄噰鐢ㄩ殢鏈?P-path
+% doubly selective Rayleigh channel锛屾瘮杈?baseline/GPS/proposed 鐨勫钩鍧?BER�?%
 % 鏈疄楠屽亣璁炬帴鏀剁 perfect CSI锛岀敤浜庨殧绂讳笉鍚?pre-chirp / c2 pattern
-% 璁捐鏈韩鐨勫奖鍝嶃€傚彂灏勭涓嶄娇鐢?CSI锛屽彧鏍规嵁褰撳墠鏁版嵁鍋?PAPR selection銆?% GPS/proposed 鐨?selected pattern 鏆傛椂鍋囪閫氳繃鐞嗘兂 SI 鍛婄煡鎺ユ敹绔紝SI 璁捐涓嶆槸鏈疄楠岄噸鐐广€?%
-% 鏈疄楠屼笌 Case A fixed-channel stress test 浜掕ˉ锛?% - random channel BER 璇存槑鏅€氶殢鏈轰俊閬撲笅鐨勫钩鍧囨€ц兘锛?% - fixed Case A BER 璇存槑 GPS 鐨?worst-case vulnerability銆?% 濡傛灉 GPS 鍦ㄩ殢鏈轰俊閬撲笅涓嶅嚭鐜?BER floor锛屽苟涓嶅惁瀹?fixed stress test 鐨勬剰涔夈€?
+% 璁捐鏈韩鐨勫奖鍝嶃€傚彂灏勭涓嶄娇�?CSI锛屽彧鏍规嵁褰撳墠鏁版嵁�?PAPR selection�?% GPS/proposed �?selected pattern 鏆傛椂鍋囪閫氳繃鐞嗘兂 SI 鍛婄煡鎺ユ敹绔紝SI 璁捐涓嶆槸鏈疄楠岄噸鐐广�?%
+% 鏈疄楠屼笌 Case A fixed-channel stress test 浜掕ˉ�?% - random channel BER 璇存槑鏅€氶殢鏈轰俊閬撲笅鐨勫钩鍧囨€ц兘�?% - fixed Case A BER 璇存�?GPS �?worst-case vulnerability�?% 濡傛�?GPS 鍦ㄩ殢鏈轰俊閬撲笅涓嶅嚭�?BER floor锛屽苟涓嶅惁�?fixed stress test 鐨勬剰涔夈€?
 rootDir = find_afdm_root(fileparts(mfilename('fullpath')));
 addpath(rootDir);
 setup_paths(rootDir);
@@ -32,8 +32,7 @@ if ~exist('channel_profile', 'var'), channel_profile = 'medium'; end
 [numPaths, lmax, alpha_max] = channel_profile_params(channel_profile, Lcpp);
 
 % ========================
-% 鏋勯€犲熀纭€閰嶇疆
-% ========================
+% 鏋勯€犲熀纭€閰嶇�?% ========================
 baseCfg = afdm_config();
 baseCfg.waveform.NumSubcarriers = N;
 baseCfg.waveform.CPPLength = Lcpp;
@@ -149,7 +148,7 @@ for snrIdx = 1:numSnr
 end
 
 % ========================
-% 淇濆瓨涓庣粯鍥?% ========================
+% 淇濆瓨涓庣粯�?% ========================
 outputDir = fullfile(fileparts(rootDir), 'results');
 if ~exist(outputDir, 'dir')
     mkdir(outputDir);
@@ -197,7 +196,7 @@ for deltaIdx = 1:numDelta
 end
 
 function cfg = prepare_frame_cfg(baseCfg, scheme, snrDb, txBits, ch)
-    cfg = apply_pre_chirp_scheme(baseCfg, scheme);
+    cfg = afdm.chirp.apply_scheme(baseCfg, scheme);
     cfg.channel.snr_db = snrDb;
     cfg.channel.delay_taps = ch.delays(:).';
     cfg.channel.doppler_taps = ch.dopplers(:).';

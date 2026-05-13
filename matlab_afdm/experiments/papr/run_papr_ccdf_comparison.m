@@ -1,5 +1,5 @@
-﻿function results = run_papr_ccdf_comparison(numFrames, options)
-%RUN_PAPR_CCDF_COMPARISON 鍙繍琛?PAPR CCDF 瀵规瘮锛屼笉鍋?BER sweep銆?%   姣旇緝 baseline / GPS(paper_grouping) / proposed_grouping銆?%
+function results = run_papr_ccdf_comparison(numFrames, options)
+%RUN_PAPR_CCDF_COMPARISON 鍙繍琛?PAPR CCDF 瀵规瘮锛屼笉�?BER sweep�?%   姣旇�?baseline / GPS(paper_grouping) / proposed_grouping�?%
 %   results = run_papr_ccdf_comparison(1000)
 
     rootDir = find_afdm_root(fileparts(mfilename('fullpath')));
@@ -19,7 +19,8 @@
     schemeLabels = get_option(options, 'scheme_labels', {'Baseline', 'GPS', 'Proposed'});
 
     baseConfig = afdm_config();
-    baseConfig.channel.add_noise = false; %#ok<NASGU> PAPR 鍙湅鍙戝皠绔紝淇￠亾鏃犲叧銆?    numSchemes = numel(schemes);
+    baseConfig.channel.add_noise = false; %#ok<NASGU>
+    numSchemes = numel(schemes);
 
     paprSamples = zeros(numFrames, numSchemes);
     selectedPatterns = cell(numFrames, numSchemes);
@@ -32,9 +33,9 @@
         txBits = randi([0, 1], baseConfig.waveform.NumSubcarriers * log2(baseConfig.modulation.M_mod), 1);
 
         for schemeIdx = 1:numSchemes
-            cfg = apply_pre_chirp_scheme(baseConfig, schemes{schemeIdx});
+            cfg = afdm.chirp.apply_scheme(baseConfig, schemes{schemeIdx});
             cfg.tx.bits = txBits;
-            [~, papr, ~, txState] = afdm_tx_engine(cfg);
+            [~, papr, ~, txState] = afdm.tx.engine(cfg);
             paprSamples(frameIdx, schemeIdx) = papr;
             selectedPatterns{frameIdx, schemeIdx} = extract_pattern_label(txState.pre_chirp_profile);
         end

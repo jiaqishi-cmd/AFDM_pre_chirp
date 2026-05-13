@@ -40,7 +40,7 @@ function results = run_ber_comparison(numFrames, snr_values, schemes, options)
         snr_db = snr_values(snr_idx);
 
         for scheme_idx = 1:num_schemes
-            cfg = apply_pre_chirp_scheme(base_config, schemes{scheme_idx});
+            cfg = afdm.chirp.apply_scheme(base_config, schemes{scheme_idx});
             cfg.channel.snr_db = snr_db;
 
             total_err_bits = 0;

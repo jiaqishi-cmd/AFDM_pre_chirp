@@ -1,5 +1,5 @@
-﻿function results = run_proposed_delta_ccdf_curves(numFrames, options)
-%RUN_PROPOSED_DELTA_CCDF_CURVES 姣旇緝 proposed 涓嶅悓 delta/c2 涓嬬殑 PAPR CCDF 鏇茬嚎銆?%   璇ュ疄楠屽洖褰掓甯搁殢鏈烘暟鎹抚锛屼笉浣跨敤 Case A fixed channel銆?
+function results = run_proposed_delta_ccdf_curves(numFrames, options)
+%RUN_PROPOSED_DELTA_CCDF_CURVES 姣旇�?proposed 涓嶅�?delta/c2 涓嬬�?PAPR CCDF 鏇茬嚎銆?%   璇ュ疄楠屽洖褰掓甯搁殢鏈烘暟鎹抚锛屼笉浣跨敤 Case A fixed channel�?
     rootDir = find_afdm_root(fileparts(mfilename('fullpath')));
     addpath(rootDir);
     setup_paths(rootDir);
@@ -84,9 +84,9 @@
 end
 
 function papr = frame_papr_for_scheme(baseConfig, scheme, txBits)
-    cfg = apply_pre_chirp_scheme(baseConfig, scheme);
+    cfg = afdm.chirp.apply_scheme(baseConfig, scheme);
     cfg.tx.bits = txBits;
-    [~, papr] = afdm_tx_engine(cfg);
+    [~, papr] = afdm.tx.engine(cfg);
 end
 
 function ccdf = compute_papr_ccdf(samples, thresholds)

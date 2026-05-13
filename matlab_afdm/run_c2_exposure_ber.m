@@ -83,7 +83,7 @@ function results = run_c2_exposure_ber(diagnosticSource, scenarioIdx, caseRanks,
 
         for snr_idx = 1:numel(snr_values)
             for scheme_idx = 1:numel(schemes)
-                cfg = apply_pre_chirp_scheme(base_config, schemes{scheme_idx});
+                cfg = afdm.chirp.apply_scheme(base_config, schemes{scheme_idx});
                 cfg = apply_case_to_config(cfg, caseDef);
                 cfg.channel.multipath = true;
                 cfg.channel.add_noise = true;

@@ -19,14 +19,14 @@ function frame = simulate_frame(config, frameSeed, options)
     end
 
     if get_option(options, 'refresh_channel', false)
-        config = generate_channel_profile(config, config.channel.profile);
+        config = afdm.channel.generate_profile(config, config.channel.profile);
     end
 
     [signal_cpp, papr, tx_bits, tx_state] = afdm.tx.engine(config);
-    r_signal = multipath_channel(signal_cpp, config);
-    [r_signal, noise_var] = add_awgn(r_signal, config);
+    r_signal = afdm.channel.multipath(signal_cpp, config);
+    [r_signal, noise_var] = afdm.channel.add_awgn(r_signal, config);
     config.channel.noise_var = noise_var;
-    [x_dec, err_bits, total_bits] = afdm_rx_engine(r_signal, config, tx_bits, tx_state);
+    [x_dec, err_bits, total_bits] = afdm.rx.engine(r_signal, config, tx_bits, tx_state);
 
     frame.papr = papr;
     frame.err_bits = err_bits;

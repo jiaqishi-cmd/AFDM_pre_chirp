@@ -1,4 +1,4 @@
-﻿% MAIN_CASEA_PHASE_SCAN_DMIN
+% MAIN_CASEA_PHASE_SCAN_DMIN
 % Fixed Case A phase scan for GPS-specific minimum-distance vulnerability.
 rootDir = find_afdm_root(fileparts(mfilename('fullpath')));
 addpath(rootDir);
@@ -34,7 +34,7 @@ fprintf('GPS pattern: [%s]\n', sprintf('%d ', gps_pattern));
 deltaOptions.num_random_bpsk = 2000;
 deltaOptions.num_random_qpsk = 2000;
 deltaOptions.seed = 20260508;
-delta_set = generate_delta_set_for_dmin(N, M, deltaOptions);
+delta_set = afdm.delta.generate_set_for_dmin(N, M, deltaOptions);
 fprintf('Delta candidates: %d\n', size(delta_set.delta, 2));
 
 scanOptions.N = N;

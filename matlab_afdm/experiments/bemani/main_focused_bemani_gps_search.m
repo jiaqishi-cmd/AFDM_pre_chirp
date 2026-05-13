@@ -1,5 +1,5 @@
-﻿% MAIN_FOCUSED_BEMANI_GPS_SEARCH
-% 鑱氱劍 Bemani 鍏抽敭绛夊紡鐨?GPS-AFDM 鍙嶄緥鎼滅储銆?% 鏈剼鏈彧鎼滅储鐞嗚涓婃渶鍗遍櫓鐨?A-F 鍏釜涓ゅ緞 case锛屼笉鎵弿 total H_eff rank銆?% 鏍稿績鎸囨爣鏄?key-equation mismatch 鍜?Phi(delta)=[H1*delta,H2*delta]銆?
+% MAIN_FOCUSED_BEMANI_GPS_SEARCH
+% 鑱氱�?Bemani 鍏抽敭绛夊紡�?GPS-AFDM 鍙嶄緥鎼滅储�?% 鏈剼鏈彧鎼滅储鐞嗚涓婃渶鍗遍櫓鐨?A-F 鍏釜涓ゅ緞 case锛屼笉鎵弿 total H_eff rank�?% 鏍稿績鎸囨爣�?key-equation mismatch �?Phi(delta)=[H1*delta,H2*delta]�?
 rootDir = find_afdm_root(fileparts(mfilename('fullpath')));
 addpath(rootDir);
 setup_paths(rootDir);
@@ -37,21 +37,21 @@ row_idx = 0;
 
 for case_idx = 1:numel(cases)
     case_def = cases(case_idx);
-    H1_base = build_H_path_general_c2m(N, c1, c2_base, 0, 0);
-    H2_base = build_H_path_general_c2m(N, c1, c2_base, case_def.l2, case_def.alpha2);
+    H1_base = afdm.analysis.build_path_matrix(N, c1, c2_base, 0, 0);
+    H2_base = afdm.analysis.build_path_matrix(N, c1, c2_base, case_def.l2, case_def.alpha2);
 
     for pattern_idx = 1:size(patterns, 1)
         pattern_name = patterns{pattern_idx, 1};
         pattern = patterns{pattern_idx, 2};
-        [c2_gps, d_gps] = build_c2m_gps_pattern(N, V, pattern);
-        H1_gps = build_H_path_general_c2m(N, c1, c2_gps, 0, 0);
-        H2_gps = build_H_path_general_c2m(N, c1, c2_gps, case_def.l2, case_def.alpha2);
+        [c2_gps, d_gps] = afdm.chirp.build_gps_pattern(N, V, pattern);
+        H1_gps = afdm.analysis.build_path_matrix(N, c1, c2_gps, 0, 0);
+        H2_gps = afdm.analysis.build_path_matrix(N, c1, c2_gps, case_def.l2, case_def.alpha2);
 
         delta_set = build_structured_delta_set(N, M);
         trial_rows = evaluate_delta_set(delta_set, case_def, pattern_name, d_gps, ...
             H1_base, H2_base, H1_gps, H2_gps, c2_base, N);
 
-        % 濡傛灉缁撴瀯鍖?delta 娌℃湁瑙﹀彂寮轰俊鍙凤紝鍐嶈拷鍔犲皬瑙勬ā闅忔満 delta銆?        if ~has_strong_case(trial_rows)
+        % 濡傛灉缁撴瀯鍖?delta 娌℃湁瑙﹀彂寮轰俊鍙凤紝鍐嶈拷鍔犲皬瑙勬ā闅忔満 delta�?        if ~has_strong_case(trial_rows)
             random_set = build_random_delta_set(N, 200, 200, 20260508 + 100 * case_idx + pattern_idx);
             trial_rows = [trial_rows, evaluate_delta_set(random_set, case_def, pattern_name, d_gps, ...
                 H1_base, H2_base, H1_gps, H2_gps, c2_base, N)]; %#ok<AGROW>
@@ -174,9 +174,9 @@ function row_set = evaluate_delta_set(delta_set, case_def, pattern_name, d_gps, 
     for delta_idx = 1:numel(delta_set)
         row = row_template;
         delta = delta_set(delta_idx).delta;
-        metrics = compute_bemani_equation_error(delta, d_gps, case_def.L, case_def.l2, N, c2_values);
-        base_phi = evaluate_phi_metrics(H1_base, H2_base, delta);
-        gps_phi = evaluate_phi_metrics(H1_gps, H2_gps, delta);
+        metrics = afdm.analysis.bemani_equation_error(delta, d_gps, case_def.L, case_def.l2, N, c2_values);
+        base_phi = afdm.analysis.phi_metrics(H1_base, H2_base, delta);
+        gps_phi = afdm.analysis.phi_metrics(H1_gps, H2_gps, delta);
 
         row.case_name = case_def.name;
         row.l2 = case_def.l2;
@@ -240,8 +240,8 @@ function print_top_tables(T)
 end
 
 function focused_best_cases = select_focused_best_cases(T, N, V, M, alpha_max, c1, c2_base)
-    % 淇濆瓨涓や釜浠ｈ〃鎬?case锛?    % 1) mismatch_case锛歬ey-equation mismatch 鏀瑰杽鏈€澶э紱
-    % 2) phi_case锛歅hi(delta) 鐨?sigma_ratio 闄嶄綆銆佸垪鐩稿叧鍗囬珮鏈€鏄庢樉銆?    [~, mismatch_idx] = max(T.improvement_mean);
+    % 淇濆瓨涓や釜浠ｈ〃鎬?case�?    % 1) mismatch_case锛歬ey-equation mismatch 鏀瑰杽鏈€澶э紱
+    % 2) phi_case锛歅hi(delta) �?sigma_ratio 闄嶄綆銆佸垪鐩稿叧鍗囬珮鏈€鏄庢樉銆?    [~, mismatch_idx] = max(T.improvement_mean);
     [~, phi_idx] = min(T.sigma_ratio_gps_over_base);
 
     focused_best_cases.mismatch_case = table_row_to_best_case(T(mismatch_idx, :), N, V, M, alpha_max, c1, c2_base);

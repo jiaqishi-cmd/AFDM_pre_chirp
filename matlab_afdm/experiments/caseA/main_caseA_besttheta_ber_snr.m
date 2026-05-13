@@ -1,4 +1,4 @@
-﻿% MAIN_CASEA_BESTTHETA_BER_SNR
+% MAIN_CASEA_BESTTHETA_BER_SNR
 % Run BPSK/QPSK BER at the best theta from Case A phase scan and at theta=pi.
 rootDir = find_afdm_root(fileparts(mfilename('fullpath')));
 addpath(rootDir);

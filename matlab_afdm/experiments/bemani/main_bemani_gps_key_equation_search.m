@@ -1,4 +1,4 @@
-﻿% MAIN_BEMANI_GPS_KEY_EQUATION_SEARCH
+% MAIN_BEMANI_GPS_KEY_EQUATION_SEARCH
 % Search Bemani two-path key-equation matches for Yuan GPS-AFDM c2,m.
 
 rootDir = find_afdm_root(fileparts(mfilename('fullpath')));
@@ -30,7 +30,7 @@ patterns = { ...
 proposed_patterns = build_all_patterns(3, V);
 proposed_delta = c2_base / 16;
 
-delta_set = generate_delta_set_for_equation_search(N, V, 1000, 1000, 20260427);
+delta_set = afdm.delta.generate_set_for_equation_search(N, V, 1000, 1000, 20260427);
 path_cases = build_path_cases(alpha_max, N);
 
 numRows = numel(path_cases) * size(patterns, 1) * numel(delta_set);
@@ -45,13 +45,13 @@ row = 0;
 gps_cache = cell(size(patterns, 1), 2);
 for pattern_idx = 1:size(patterns, 1)
     [gps_cache{pattern_idx, 1}, gps_cache{pattern_idx, 2}] = ...
-        build_c2m_gps_pattern(N, V, patterns{pattern_idx, 2});
+        afdm.chirp.build_gps_pattern(N, V, patterns{pattern_idx, 2});
 end
 
 proposed_cache = cell(size(proposed_patterns, 1), 2);
 for proposed_idx = 1:size(proposed_patterns, 1)
     [proposed_cache{proposed_idx, 1}, proposed_cache{proposed_idx, 2}] = ...
-        build_c2m_proposed_pattern(N, V, proposed_patterns(proposed_idx, :), ...
+        afdm.chirp.build_proposed_pattern(N, V, proposed_patterns(proposed_idx, :), ...
         c2_base, proposed_delta);
 end
 
@@ -79,7 +79,7 @@ for case_idx = 1:numel(path_cases)
         for delta_idx = 1:numel(delta_set)
             delta = delta_set(delta_idx).delta;
             proposed_metrics = proposed_by_delta(delta_idx);
-            metrics = compute_bemani_equation_error( ...
+            metrics = afdm.analysis.bemani_equation_error( ...
                 delta, d_gps, caseDef.L, caseDef.l2 - caseDef.l1, N, c2_values);
 
             row = row + 1;
@@ -204,7 +204,7 @@ function proposed_metrics = best_proposed_equation_error(delta, proposed_cache, 
 
     for proposed_idx = 1:size(proposed_patterns, 1)
         d_proposed = proposed_cache{proposed_idx, 2};
-        metrics = compute_bemani_equation_error(delta, d_proposed, L, ldiff, N, c2_values);
+        metrics = afdm.analysis.bemani_equation_error(delta, d_proposed, L, ldiff, N, c2_values);
         if metrics.mean_E_GPS < best_mean
             best_mean = metrics.mean_E_GPS;
             best_metrics = metrics;
@@ -280,9 +280,9 @@ function T = verify_suspect_phi(T, suspect, patterns, delta_set, N, V, c1, c2_ba
     for idx = 1:numel(suspect_idx)
         rowIdx = suspect_idx(idx);
         pattern = pattern_from_name(patterns, T.gps_pattern_name(rowIdx));
-        [c2_gps, ~] = build_c2m_gps_pattern(N, V, pattern);
+        [c2_gps, ~] = afdm.chirp.build_gps_pattern(N, V, pattern);
         proposed_pattern = parse_proposed_pattern(T.proposed_pattern_name(rowIdx));
-        [c2_proposed, ~] = build_c2m_proposed_pattern(N, V, proposed_pattern, c2_base, proposed_delta);
+        [c2_proposed, ~] = afdm.chirp.build_proposed_pattern(N, V, proposed_pattern, c2_base, proposed_delta);
         delta = delta_from_name_fast(delta_set, delta_names, T.delta_type(rowIdx));
 
         H1_base = cached_H_path(H_cache, N, c1, c2_base, 'base', ...
@@ -298,9 +298,9 @@ function T = verify_suspect_phi(T, suspect, patterns, delta_set, N, V, c1, c2_ba
         H2_proposed = cached_H_path(H_cache, N, c1, c2_proposed, char(T.proposed_pattern_name(rowIdx)), ...
             T.l2(rowIdx), T.alpha2(rowIdx));
 
-        baseMetrics = evaluate_phi_metrics(H1_base, H2_base, delta);
-        gpsMetrics = evaluate_phi_metrics(H1_gps, H2_gps, delta);
-        proposedMetrics = evaluate_phi_metrics(H1_proposed, H2_proposed, delta);
+        baseMetrics = afdm.analysis.phi_metrics(H1_base, H2_base, delta);
+        gpsMetrics = afdm.analysis.phi_metrics(H1_gps, H2_gps, delta);
+        proposedMetrics = afdm.analysis.phi_metrics(H1_proposed, H2_proposed, delta);
 
         T.rank_base(rowIdx) = baseMetrics.rank;
         T.sigma_min_base(rowIdx) = baseMetrics.sigma_min;
@@ -340,7 +340,7 @@ function H = cached_H_path(H_cache, N, c1, c2m, c2Key, l, alpha)
         return;
     end
 
-    H = build_H_path_general_c2m(N, c1, c2m, l, alpha);
+    H = afdm.analysis.build_path_matrix(N, c1, c2m, l, alpha);
     H_cache(key) = H;
 end
 
@@ -413,11 +413,11 @@ function phi_plot = select_phi_plot(T, patterns, delta_set, N, V, c1, c2_base)
     row = phiRows(idx, :);
 
     pattern = pattern_from_name(patterns, row.gps_pattern_name);
-    [c2_gps, ~] = build_c2m_gps_pattern(N, V, pattern);
+    [c2_gps, ~] = afdm.chirp.build_gps_pattern(N, V, pattern);
     delta = delta_from_name(delta_set, row.delta_type);
-    H1_gps = build_H_path_general_c2m(N, c1, c2_gps, row.l1, row.alpha1);
-    H2_gps = build_H_path_general_c2m(N, c1, c2_gps, row.l2, row.alpha2);
-    metrics = evaluate_phi_metrics(H1_gps, H2_gps, delta);
+    H1_gps = afdm.analysis.build_path_matrix(N, c1, c2_gps, row.l1, row.alpha1);
+    H2_gps = afdm.analysis.build_path_matrix(N, c1, c2_gps, row.l2, row.alpha2);
+    metrics = afdm.analysis.phi_metrics(H1_gps, H2_gps, delta);
 
     phi_plot.phi1 = metrics.phi1;
     phi_plot.phi2 = metrics.phi2;

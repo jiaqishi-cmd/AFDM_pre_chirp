@@ -1,6 +1,5 @@
-﻿% RUN_DELTA_SWEEP_PROPOSED
-% 鍒嗘瀽 proposed 涓夌偣鎵板姩闆嗗悎 {c2-delta, c2, c2+delta} 涓?delta 澶у皬鏃讹紝
-% 瀵?PAPR銆佷俊閬撴棤鍏崇粨鏋勯闄╁拰 Case A fixed-channel BER 鐨勫奖鍝嶃€?
+% RUN_DELTA_SWEEP_PROPOSED
+% 鍒嗘�?proposed 涓夌偣鎵板姩闆嗗�?{c2-delta, c2, c2+delta} �?delta 澶у皬鏃讹�?% �?PAPR銆佷俊閬撴棤鍏崇粨鏋勯闄╁�?Case A fixed-channel BER 鐨勫奖鍝嶃€?
 rootDir = find_afdm_root(fileparts(mfilename('fullpath')));
 addpath(rootDir);
 setup_paths(rootDir);
@@ -20,14 +19,13 @@ theta_caseA = pi;
 seedBase = 20260509;
 
 % ========================
-% 鍩烘湰绯荤粺鍙傛暟
-% ========================
+% 鍩烘湰绯荤粺鍙傛�?% ========================
 baseConfig = afdm_config();
 N = baseConfig.waveform.NumSubcarriers;
 V = baseConfig.pre_chirp.num_groups;
 c2_base = baseConfig.pre_chirp.base_c2;
 c1_caseA = 7 / (2 * 64);
-gpsPattern = [2 2 1 1]; %#ok<NASGU> 鐢ㄤ簬缁撴瀯鍙傝€冿紝涓嶅奖鍝?greedy GPS PAPR銆?
+gpsPattern = [2 2 1 1]; %#ok<NASGU> 鐢ㄤ簬缁撴瀯鍙傝€冿紝涓嶅奖鍝?greedy GPS PAPR�?
 metricsCfg = struct();
 metricsCfg.N = N;
 metricsCfg.M = N;
@@ -46,7 +44,7 @@ fprintf('N=%d, V=%d, c2=%.6g, PAPR frames=%d, BER SNR=%g dB\n', ...
     N, V, c2_base, numPaprFrames, SNR_dB);
 
 % ========================
-% 鍙傝€冿細baseline 鍜?GPS 鐨?PAPR 涓?BER
+% 鍙傝€冿細baseline �?GPS �?PAPR �?BER
 % ========================
 fprintf('\nSampling baseline/GPS PAPR references...\n');
 [paprBaseSamples, ~] = sample_scheme_papr(baseConfig, 'baseline', numPaprFrames, seedBase);
@@ -56,7 +54,7 @@ papr_gps_at_target = papr_at_ccdf(paprGpsSamples, paprTargetCcdf);
 
 fprintf('Running baseline/GPS Case A BER references...\n');
 ber_base_ref = run_caseA_scheme_ber(c2_base, SNR_dB, theta_caseA, c1_caseA, berMaxBits, berMinErrTarget, seedBase + 11);
-gpsProfile = build_pre_chirp_profile('paper_grouping', N, baseConfig.pre_chirp);
+gpsProfile = afdm.chirp.build_profile('paper_grouping', N, baseConfig.pre_chirp);
 c2_gps_ref = build_pattern_c2_from_candidate_set(gpsProfile.candidate_set, gpsProfile.group_index, mode_selection(gpsSelection, V));
 ber_gps_ref = run_caseA_scheme_ber(c2_gps_ref, SNR_dB, theta_caseA, c1_caseA, berMaxBits, berMinErrTarget, seedBase + 12);
 
@@ -106,7 +104,7 @@ for deltaIdx = 1:numDelta
     R_dev(deltaIdx) = mean([metricRows.R_dev]);
 
     representativeSelection = mode_selection(selectionMat, V);
-    propProfile = build_pre_chirp_profile('proposed_grouping', N, cfg.pre_chirp);
+    propProfile = afdm.chirp.build_profile('proposed_grouping', N, cfg.pre_chirp);
     c2PropBer = build_pattern_c2_from_candidate_set(propProfile.candidate_set, propProfile.group_index, representativeSelection);
     [ber_prop(deltaIdx), ber_prop_err(deltaIdx), ber_prop_bits(deltaIdx)] = ...
         run_caseA_scheme_ber(c2PropBer, SNR_dB, theta_caseA, c1_caseA, berMaxBits, berMinErrTarget, seedBase + 200 * deltaIdx);
@@ -145,7 +143,7 @@ disp(results_table);
 function [paprSamples, selectionMat, c2SelectedList] = sample_scheme_papr(baseConfig, scheme, numFrames, seedBase)
     N = baseConfig.waveform.NumSubcarriers;
     bitsPerFrame = N * log2(baseConfig.modulation.M_mod);
-    cfg0 = apply_pre_chirp_scheme(baseConfig, scheme);
+    cfg0 = afdm.chirp.apply_scheme(baseConfig, scheme);
     numGroups = max(cfg0.pre_chirp.profile.group_index);
     paprSamples = zeros(numFrames, 1);
     selectionMat = ones(numFrames, numGroups);
@@ -154,9 +152,9 @@ function [paprSamples, selectionMat, c2SelectedList] = sample_scheme_papr(baseCo
     for frameIdx = 1:numFrames
         rng(seedBase + frameIdx, 'twister');
         txBits = randi([0, 1], bitsPerFrame, 1);
-        cfg = apply_pre_chirp_scheme(baseConfig, scheme);
+        cfg = afdm.chirp.apply_scheme(baseConfig, scheme);
         cfg.tx.bits = txBits;
-        [~, papr, ~, txState] = afdm_tx_engine(cfg);
+        [~, papr, ~, txState] = afdm.tx.engine(cfg);
         paprSamples(frameIdx) = papr;
         c2SelectedList(:, frameIdx) = expand_c2(txState.c2, N);
         if isfield(txState.pre_chirp_profile, 'selection') && ...
@@ -175,7 +173,7 @@ function c2Vec = expand_c2(c2, N)
 end
 
 function value = papr_at_ccdf(samples, targetCcdf)
-    % CCDF=P(PAPR>x)銆倀arget=1e-3 瀵瑰簲 99.9 percentile銆?    value = percentile_by_sort(samples, 1 - targetCcdf);
+    value = percentile_by_sort(samples, 1 - targetCcdf);
 end
 
 function value = percentile_by_sort(samples, q)
@@ -233,12 +231,13 @@ function metrics = compute_selected_structural_metrics(c2SelectedList, c2BaseVec
         metrics(idx).R_phase = item.phase_degeneracy_risk;
         metrics(idx).alignment_ratio = item.constellation_alignment_ratio;
         metrics(idx).diagonal_perturb_dist = diagonalDist;
-        metrics(idx).R_dev = diagonalDist / 2; % 褰掍竴鍒?[0,1] 闄勮繎鐨勭浉浣?mask 鍋忕椋庨櫓銆?    end
+        metrics(idx).R_dev = diagonalDist / 2;
+    end
 end
 
 function [minusRatio, zeroRatio, plusRatio] = candidate_selection_ratios(selectionMat)
     total = numel(selectionMat);
-    % proposed_profile 褰撳墠鍊欓€夐『搴忎负 [c2, c2-delta, c2+delta]銆?    zeroRatio = sum(selectionMat(:) == 1) / total;
+    zeroRatio = sum(selectionMat(:) == 1) / total;
     minusRatio = sum(selectionMat(:) == 2) / total;
     plusRatio = sum(selectionMat(:) == 3) / total;
 end

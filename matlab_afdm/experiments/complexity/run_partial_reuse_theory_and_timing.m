@@ -1,10 +1,10 @@
 % RUN_PARTIAL_REUSE_THEORY_AND_TIMING
-% 在实现大规模 partial waveform reuse 仿真前，先做理论复杂度计数和小规�?runtime 验证�?%
-% proposed �?group-wise c2 perturbation，每�?group �?{c2-delta,c2,c2+delta}
-% 中选择。partial reuse 利用�?%   s(pattern) = sum_v s_part{v, pattern(v)}
+% 在实现大规模 partial waveform reuse 仿真前，先做理论复杂度计数和小规�?runtime 验证�?%
+% proposed �?group-wise c2 perturbation，每�?group �?{c2-delta,c2,c2+delta}
+% 中选择。partial reuse 利用�?%   s(pattern) = sum_v s_part{v, pattern(v)}
 % 搜索时：
 %   s_new = s_cur - s_part{v, old_w} + s_part{v, new_w}
-% 避免每次候选评估都完整生成 IDAFT/IFFT 波形�?
+% 避免每次候选评估都完整生成 IDAFT/IFFT 波形�?
 rootDir = find_afdm_root(fileparts(mfilename('fullpath')));
 addpath(rootDir);
 setup_paths(rootDir);
@@ -48,7 +48,7 @@ fprintf('M=%d V=%d W=%d beam=%d topK=%d searchOS=%d finalOS=%d frames=%d\n', ...
     M, V, W, beam_width, topK, search_os, final_os, numFrames);
 
 % ========================
-% Warm-up，避免首次函数调用影响计�?% ========================
+% Warm-up，避免首次函数调用影响计�?% ========================
 warmBits = randi([0, 1], M, 1);
 warmSymbols = 1 - 2 * warmBits;
 afdm.search.full_beam_search(warmSymbols, base_c2, candidate_offsets, group_index, search_os, final_os, beam_width, topK);
@@ -106,9 +106,9 @@ for frameIdx = 1:numFrames
 end
 
 % ========================
-% 理论复杂度计�?% ========================
+% 理论复杂度计�?% ========================
 N_eval_full = I * V * W;
-N_eval_search = mean(eval_count_full - topK); % 去掉 final refine �?topK 次精�?C_full_os4 = N_eval_full * (final_os * M) * log2(final_os * M);
+N_eval_search = mean(eval_count_full - topK); % 去掉 final refine �?topK 次精�?C_full_os4 = N_eval_full * (final_os * M) * log2(final_os * M);
 C_full_os4 = N_eval_full * (final_os * M) * log2(final_os * M);
 C_2stage_full = N_eval_search * (search_os * M) * log2(search_os * M) + ...
     topK * (final_os * M) * log2(final_os * M);
