@@ -11,7 +11,8 @@ N = M;
 V = 4;
 c2_base = sqrt(2) / (10 * N);
 delta = c2_base / 16;
-gps_pattern = [2 2 1 1];        % pattern_half2锛屽墠闈?Case A 鎼滅储涓緝鍗遍�?proposed_pattern = [2 2 1 1];   % 1->c2-delta, 2->c2, 3->c2+delta
+gps_pattern = [2 2 1 1];        % pattern_half2 from the previous Case A search.
+proposed_pattern = [2 2 1 1];   % 1->c2Base, 2->c2Base-delta, 3->c2Base+delta
 
 cfg = struct();
 cfg.M = M;

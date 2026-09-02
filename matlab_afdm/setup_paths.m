@@ -8,6 +8,16 @@ function setup_paths(rootDir)
     end
 
     addpath(rootDir);
+    receiveDir = fullfile(rootDir, 'receive');
+    if exist(receiveDir, 'dir')
+        addpath(receiveDir);
+    end
+
+    toolsDir = fullfile(rootDir, 'tools');
+    if exist(toolsDir, 'dir')
+        addpath(toolsDir);
+    end
+
     experimentsDir = fullfile(rootDir, 'experiments');
     if exist(experimentsDir, 'dir')
         addpath(genpath(experimentsDir));

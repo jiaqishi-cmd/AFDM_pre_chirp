@@ -30,6 +30,12 @@ git checkout codex/thesis-workspace
 git pull
 ```
 
+To verify that MATLAB can run the workspace on that computer:
+
+```matlab
+run('matlab_afdm/tools/check_environment.m')
+```
+
 ## Install Codex Skills On A Computer
 
 After pulling this repository on a new computer, install the project research
