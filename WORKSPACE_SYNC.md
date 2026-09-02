@@ -30,6 +30,21 @@ git checkout codex/thesis-workspace
 git pull
 ```
 
+## Install Codex Skills On A Computer
+
+After pulling this repository on a new computer, install the project research
+skills into that computer's local Codex skill directory:
+
+```bash
+python scripts/install_codex_skills.py
+```
+
+If you have edited the skills and want to refresh the installed copies:
+
+```bash
+python scripts/install_codex_skills.py --force
+```
+
 ## What Belongs In Git
 
 - MATLAB source code and experiment scripts
@@ -44,4 +59,3 @@ git pull
 - Logs
 - Temporary simulation results
 - Local editor settings
-
