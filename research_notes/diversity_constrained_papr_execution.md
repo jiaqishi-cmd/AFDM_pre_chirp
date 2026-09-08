@@ -214,3 +214,27 @@ QPSK和16QAM允许更多差分相位，因此GPS兼容循环支撑由3种增加�
 ## 闭式条件验证
 
 整数路径已经写成H e_q=a_q e_pi(q)的单项形式，其中eta=-(alpha+2Nc1l) mod N，a_q由基础路径相位和输入输出两端预啁啾相位之比构成。针对三种调制和56种路径支撑，包含局部单位根兼容与全循环相位闭合的判据与数值特征向量搜索达到168/168一致。
+
+## 安全码本反例检查
+
+为检验局部扰动是否只是GPS的一种可替代修补，构造GPS相位theta=pi/2+epsilon，并对全部16个分组模式进行离线认证。认证集合覆盖delay=1..8、Doppler=-3..3和16QAM差分相位；含任一严格兼容循环的模式被删除。epsilon不为0时，16个模式中有12个不安全，剩余4个安全模式。在线从4个安全模式中选择最低PAPR，因此只需4次波形评价，少于原GPS贪婪的5次。
+
+在相同1000个16QAM PAPR帧和3000个BPSK危险信道BER帧下：
+
+| 方案 | 在线评价次数 | 平均PAPR/dB | P99/dB | 28 dB MMSE BER |
+|---|---:|---:|---:|---:|
+| 安全GPS epsilon=0.3 | 4 | 6.591 | 8.352 | 当前样本0错误 |
+| 安全GPS epsilon=0.4 | 4 | 6.559 | 8.172 | 当前样本0错误 |
+| 安全GPS epsilon=0.5 | 4 | 6.543 | 8.039 | 当前样本0错误 |
+| proposed-2 | 5 | 6.598 | 8.466 | 3.438e-4 |
+| proposed-3 | 9 | 6.442 | 7.909 | 2.708e-4 |
+
+当前样本中，epsilon=0.5的安全GPS在PAPR、BER和在线评价次数上均优于proposed-2。proposed-3仍有约0.10 dB平均PAPR和0.13 dB P99优势，但评价次数更多且危险信道BER较高。
+
+该反例说明“局部c2扰动”不应继续作为唯一核心机制。更稳的统一问题应定义为：先在给定路径支撑和星座集合上认证预啁啾模式的循环安全性或最小特征值，再从安全码本中进行低PAPR选择。局部扰动、GPS相位偏移以及其他离散码本都可以作为候选码本生成方式。
+
+建议的新优化形式为
+
+maximize over epsilon and safe codebook Q_safe: minimum lambda_min(Psi_q^H Psi_q),
+
+subject to codebook size and online complexity budgets, while minimizing a PAPR quantile over q in Q_safe. 在线阶段只执行arg min PAPR over Q_safe，不再允许进入未经认证的模式。

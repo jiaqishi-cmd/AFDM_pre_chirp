@@ -22,6 +22,8 @@ function [candidateSet, metadata] = gps_candidate_set_variant( ...
             phaseStep = 2 * pi / 2^phaseBits;
             phaseMagnitude = round(((pi / 2) * irrationalScale) / phaseStep) ...
                 * phaseStep;
+        case 'phase_offset'
+            phaseMagnitude = pi / 2 + get_option(options, 'phase_offset', 0);
         otherwise
             error('Unsupported GPS variant: %s', variant);
     end
