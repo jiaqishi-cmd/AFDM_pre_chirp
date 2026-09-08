@@ -66,4 +66,36 @@ assert(cycleAnalysis.num_compatible_eigenvectors >= 1);
 assert(norm(gpsRational - gpsLegacy) < 1e-12);
 assert(norm(gpsIrrational - gpsRational) > 0);
 
+bpskRisk = afdm.analysis.gps_cycle_risk_condition(64, 7/128, 2, 2, 2);
+qpskRisk = afdm.analysis.gps_cycle_risk_condition(64, 7/128, 4, 0, 4);
+safeSupport = afdm.analysis.gps_cycle_risk_condition(64, 7/128, 1, 0, 2);
+assert(bpskRisk.predicts_compatible_cycle);
+assert(qpskRisk.predicts_compatible_cycle);
+assert(~safeSupport.predicts_compatible_cycle);
+
+rotationalRisk = afdm.analysis.monomial_rotational_cycle_condition( ...
+    cycleOperator, 4);
+assert(rotationalRisk.predicts_compatible_cycle);
+
+pathCases = [1 -3; 2 2; 5 -3; 8 0];
+c2Cases = {sqrt(2)/(10*64), ...
+    afdm.chirp.build_gps_pattern(64, 4, [2 2 1 1]), ...
+    afdm.chirp.build_proposed_pattern( ...
+        64, 4, [2 2 1 1], sqrt(2)/(10*64), sqrt(2)/(160*64))};
+for c2Idx = 1:numel(c2Cases)
+    for pathIdx = 1:size(pathCases, 1)
+        delay = pathCases(pathIdx, 1);
+        doppler = pathCases(pathIdx, 2);
+        closedForm = afdm.analysis.integer_path_monomial_parameters( ...
+            64, 7/128, c2Cases{c2Idx}, delay, doppler);
+        reconstructed = zeros(64, 64);
+        linearIdx = sub2ind([64, 64], ...
+            closedForm.permutation, (1:64).');
+        reconstructed(linearIdx) = closedForm.coefficient;
+        numerical = afdm.analysis.build_path_matrix( ...
+            64, 7/128, c2Cases{c2Idx}, delay, doppler);
+        assert(norm(reconstructed - numerical, 'fro') < 1e-10);
+    end
+end
+
 fprintf('test_pairwise_diversity_metrics passed.\n');
