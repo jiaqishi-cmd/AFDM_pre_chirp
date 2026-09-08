@@ -20,6 +20,7 @@ function results = run_gps_path_support_grid(options)
     dopplerList = get_option(options, 'doppler_list', -alphaMax:alphaMax);
     differenceAlphabet = get_option(options, ...
         'difference_alphabet', [-2i; 2i]);
+    resultLabel = get_option(options, 'label', 'bpsk');
 
     schemes = ["baseline", "GPS", "proposed"];
     c2Values = { ...
@@ -73,13 +74,14 @@ function results = run_gps_path_support_grid(options)
     if ~exist(outputDir, 'dir')
         mkdir(outputDir);
     end
-    save(fullfile(outputDir, 'gps_path_support_grid.mat'), 'results');
-    writetable(summary, fullfile(outputDir, 'gps_path_support_grid.csv'));
-    plot_grid(results, outputDir);
+    outputTag = ['gps_path_support_grid_' sanitize_label(resultLabel)];
+    save(fullfile(outputDir, [outputTag '.mat']), 'results');
+    writetable(summary, fullfile(outputDir, [outputTag '.csv']));
+    plot_grid(results, outputDir, outputTag);
     print_summary(summary);
 end
 
-function plot_grid(results, outputDir)
+function plot_grid(results, outputDir, outputTag)
     gpsRows = results.summary(results.summary.scheme == "GPS", :);
     delayList = results.config.delay_list;
     dopplerList = results.config.doppler_list;
@@ -98,7 +100,11 @@ function plot_grid(results, outputDir)
     xlabel('Second-path integer Doppler');
     ylabel('Second-path delay');
     title('Minimum BPSK-compatible cycle weight for GPS');
-    saveas(gcf, fullfile(outputDir, 'gps_path_support_cycle_risk.png'));
+    saveas(gcf, fullfile(outputDir, [outputTag '.png']));
+end
+
+function label = sanitize_label(value)
+    label = regexprep(char(string(value)), '[^A-Za-z0-9_-]', '_');
 end
 
 function print_summary(T)

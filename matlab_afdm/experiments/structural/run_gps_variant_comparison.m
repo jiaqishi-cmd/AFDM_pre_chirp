@@ -174,7 +174,8 @@ function [variants, c2Patterns, candidateSets, phaseErrors] = ...
     for bits = phaseBitsList
         variants(end + 1) = "GPS-q" + string(bits); %#ok<AGROW>
     end
-    variants(end + 1) = "proposed";
+    variants(end + 1) = "proposed-2";
+    variants(end + 1) = "proposed-3";
 
     numVariants = numel(variants);
     c2Patterns = cell(numVariants, 1);
@@ -205,6 +206,12 @@ function [variants, c2Patterns, candidateSets, phaseErrors] = ...
             candidateSets{variantIdx}, N, V, pattern);
         phaseErrors(variantIdx) = metadata.phase_error_from_pi_over_2;
     end
+
+    proposed2Idx = numVariants - 1;
+    candidateSets{proposed2Idx} = c2Base + ...
+        repmat([-delta, delta], N, 1);
+    c2Patterns{proposed2Idx} = select_pattern( ...
+        candidateSets{proposed2Idx}, N, V, pattern);
 
     proposedIdx = numVariants;
     proposedOffsets = [0, -delta, delta];
