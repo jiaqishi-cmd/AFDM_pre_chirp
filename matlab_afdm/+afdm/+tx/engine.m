@@ -18,7 +18,14 @@ function [signalCpp, papr, bits, txState] = engine(config)
     txState.symbols = symbols;
 
     baseband = afdm.tx.idaft_mod(symbols, numSubcarriers, c1, txState.c2);
-    papr = afdm.tx.compute_papr(baseband);
+    oversamplingFactor = 1;
+    if isfield(config, 'pre_chirp') && ...
+            isfield(config.pre_chirp, 'oversampling_factor') && ...
+            ~isempty(config.pre_chirp.oversampling_factor)
+        oversamplingFactor = config.pre_chirp.oversampling_factor;
+    end
+    paprSignal = afdm.search.full_waveform(symbols, txState.c2, oversamplingFactor);
+    papr = afdm.tx.compute_papr(paprSignal);
     signalCpp = afdm.tx.add_cpp(baseband, cppLength, c1);
 end
 

@@ -1,11 +1,15 @@
-function selection = greedy_group_papr_selection(symbols, numSubcarriers, c1, candidateSet, groupIndex)
+function selection = greedy_group_papr_selection(symbols, numSubcarriers, c1, candidateSet, groupIndex, oversamplingFactor)
 %GREEDY_GROUP_PAPR_SELECTION Greedily choose group candidates to reduce PAPR.
+
+    if nargin < 6 || isempty(oversamplingFactor)
+        oversamplingFactor = 1;
+    end
 
     numGroups = max(groupIndex);
     numCandidates = size(candidateSet, 2);
 
     c2Vec = candidateSet(:, 1);
-    bestSignal = afdm.tx.idaft_mod(symbols, numSubcarriers, c1, c2Vec);
+    bestSignal = afdm.search.full_waveform(symbols, c2Vec, oversamplingFactor);
     bestPapr = afdm.tx.compute_papr(bestSignal);
     selectedCandidateIndex = ones(numGroups, 1);
 
@@ -20,7 +24,7 @@ function selection = greedy_group_papr_selection(symbols, numSubcarriers, c1, ca
             c2Trial = c2Vec;
             c2Trial(indices) = candidateSet(indices, candidateId);
 
-            signalTrial = afdm.tx.idaft_mod(symbols, numSubcarriers, c1, c2Trial);
+            signalTrial = afdm.search.full_waveform(symbols, c2Trial, oversamplingFactor);
             paprTrial = afdm.tx.compute_papr(signalTrial);
 
             if paprTrial < groupBestPapr
@@ -41,4 +45,5 @@ function selection = greedy_group_papr_selection(symbols, numSubcarriers, c1, ca
     selection.papr = bestPapr;
     selection.signal = bestSignal;
     selection.selected_candidate_index = selectedCandidateIndex;
+    selection.oversampling_factor = oversamplingFactor;
 end

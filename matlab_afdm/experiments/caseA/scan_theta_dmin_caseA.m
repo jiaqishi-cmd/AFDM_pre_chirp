@@ -20,12 +20,9 @@ function scan = scan_theta_dmin_caseA(theta_list, delta_set, options)
     alpha2 = 2;
 
     [c2Gps, ~] = afdm.chirp.build_gps_pattern(N, V, gpsPattern);
-    hasProposed = exist('afdm.chirp.build_proposed_pattern', 'file') == 2;
-    if hasProposed
-        [c2Prop, ~] = afdm.chirp.build_proposed_pattern(N, V, proposedPattern, c2Base, proposedDelta);
-    else
-        c2Prop = NaN;
-    end
+    [c2Prop, ~] = afdm.chirp.build_proposed_pattern( ...
+        N, V, proposedPattern, c2Base, proposedDelta);
+    hasProposed = true;
 
     paths.base.H1 = afdm.analysis.build_path_matrix(N, c1, c2Base, l1, alpha1);
     paths.base.H2 = afdm.analysis.build_path_matrix(N, c1, c2Base, l2, alpha2);

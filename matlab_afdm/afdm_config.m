@@ -37,6 +37,7 @@ function config = afdm_config()
     config.pre_chirp.num_candidates = 2;
     config.pre_chirp.group_spacing = base_c2 / 4;
     config.pre_chirp.delta = base_c2 / 16;
+    config.pre_chirp.oversampling_factor = 4;
     config = afdm.chirp.apply_scheme(config, config.pre_chirp.scheme);
 
     config.simulation.enable_snr_loop = true;
