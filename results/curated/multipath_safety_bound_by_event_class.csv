@@ -1,0 +1,5 @@
+event_class,num_events,positive_bound_fraction,exact_rank_loss_events,collective_only_events
+weight-1,128,1,0,0
+weight-2,1000,0.978166666666667,0,0
+dense,500,1,0,0
+pair-cycle,24,0.631944444444444,14,0

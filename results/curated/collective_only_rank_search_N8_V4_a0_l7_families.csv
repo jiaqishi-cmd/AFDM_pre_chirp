@@ -1,0 +1,5 @@
+scheme,num_patterns,pairwise_safe_patterns,patterns_with_collective_only_loss,collective_only_events,best_min_collective_lambda,worst_min_collective_lambda
+baseline,1,1,0,0,0.0618260478335891,0.0618260478335891
+GPS-rational,16,0,0,0,NaN,NaN
+GPS-offset,16,4,0,0,0.0575959374647522,0.0575959374647516
+local-proposed,81,81,0,0,0.153251033718906,0.00910317991765153
