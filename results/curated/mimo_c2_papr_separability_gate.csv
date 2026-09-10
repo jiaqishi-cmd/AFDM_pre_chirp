@@ -1,0 +1,4 @@
+num_tx_antennas,num_modes,cartesian_combinations,independent_mode_bits,common_mode_bits,mean_independent_minimax_papr,p99_independent_minimax_papr,mean_common_mode_papr,p99_common_mode_papr,mean_common_mode_penalty,p99_common_mode_penalty,independent_common_agreement,exhaustive_identity_verified,max_joint_identity_error
+2,4,16,4,2,6.16749942498055,7.66228435667627,6.4316675186233,7.88067814286038,0.264168093642745,1.55972138503949,0.2468,1,0
+4,4,256,8,2,6.47323798524358,7.82500632836206,6.99955650896651,8.27986807988109,0.526318523722925,1.7596999059608,0.0174,1,0
+8,4,65536,16,2,6.74783442346328,8.06984054594393,7.51579722699102,8.66772996255609,0.767962803527748,1.99761815242626,0,0,NaN

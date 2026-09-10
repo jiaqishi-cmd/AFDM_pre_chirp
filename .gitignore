@@ -7,7 +7,9 @@ sccprj/
 codegen/
 
 # Simulation outputs
-results/
+results/*
+!results/curated/
+!results/curated/**
 *.fig
 *.mat
 *.log
